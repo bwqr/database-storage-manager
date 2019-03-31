@@ -1,11 +1,8 @@
 #ifndef SRC_INDEX_H
 #define SRC_INDEX_H
 
-#define FILE_ID 4
-#define PAGE_ID 1
-#define RECORD_ID 1
-
 #include <tiff.h>
+#include "defs.h"
 
 class index {
 public:

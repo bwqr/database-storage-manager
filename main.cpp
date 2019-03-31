@@ -3,9 +3,9 @@
 #include "system_catalog.h"
 #include <sstream>
 #include <fstream>
-
-#define TYPE_NAME 8
-#define FIELD_NAME 8
+#include "ddl.h"
+#include "dml.h"
+#include "defs.h"
 
 int main(int argc, char **argv) {
     if(argc < 3) {
@@ -14,6 +14,10 @@ int main(int argc, char **argv) {
     }
 
     auto *sysCatalog = new SystemCatalog;
+
+    auto *ddl = new class ddl(sysCatalog);
+
+    auto *dml = new class dml(sysCatalog);
 
     if(argv[1][1] =='f'){
 
@@ -44,15 +48,15 @@ int main(int argc, char **argv) {
                     fields[i].resize(FIELD_NAME, (char) 0x20);
                 }
 
-                sysCatalog->createType(typeName, numFields, fields);
+                ddl->createType(typeName, numFields, fields);
 
             } else if(command == "delete" && command_type == "type"){
 
-                sysCatalog->deleteType(typeName);
+                ddl->deleteType(typeName);
 
             } else if(command == "list" && command_type == "type") {
 
-                sysCatalog->listTypes(outputFile);
+                ddl->listTypes(outputFile);
 
             } else if(command == "create" && command_type == "record") {
 
@@ -65,7 +69,7 @@ int main(int argc, char **argv) {
                         iss >> fields[i];
                     }
 
-                    sysCatalog->createRecord(typeName, fields);
+                    dml->createRecord(typeName, fields);
                 }
 
             } else if(command == "delete" && command_type == "record") {
@@ -73,7 +77,7 @@ int main(int argc, char **argv) {
 
                 iss >> primaryKey;
 
-                sysCatalog->deleteRecord(typeName, primaryKey);
+                dml->deleteRecord(typeName, primaryKey);
 
             } else if(command == "update" && command_type == "record") {
                 int32 primaryKey;
@@ -89,7 +93,7 @@ int main(int argc, char **argv) {
                         iss >> fields[i];
                     }
 
-                    sysCatalog->updateRecord(typeName, primaryKey, fields);
+                    dml->updateRecord(typeName, primaryKey, fields);
                 }
 
             } else if(command == "search" && command_type == "record") {
@@ -98,7 +102,7 @@ int main(int argc, char **argv) {
 
                 iss >> primaryKey;
 
-                auto record = sysCatalog->searchByPrimaryKey(typeName, primaryKey);
+                auto record = dml->searchRecord(typeName, primaryKey);
 
                 if(record != nullptr) {
 
@@ -114,7 +118,7 @@ int main(int argc, char **argv) {
 
             } else if(command == "list" && command_type == "record") {
 
-                sysCatalog->listRecords(typeName, outputFile);
+                dml->listRecords(typeName, outputFile);
 
             }
         }
@@ -130,21 +134,21 @@ int main(int argc, char **argv) {
 
         createType.resize(TYPE_NAME, (char) 0x20);
 
-        sysCatalog->createType(createType, argc - 3, fields);
+        ddl->createType(createType, argc - 3, fields);
 
     } else if(argv[1][1] == 'd') {
         string deleteFile = string(argv[2]);
 
         deleteFile.resize(TYPE_NAME, (char) 0x20);
 
-        sysCatalog->deleteType(string(deleteFile));
+        ddl->deleteType(string(deleteFile));
     } else if(argv[1][1] == 'l' && argv[1][2] == 't') {
 
         string listType = string(argv[2]);
 
         listType.resize(TYPE_NAME, (char) 0x20);
 
-        sysCatalog->listRecords(listType, cout);
+        dml->listRecords(listType, cout);
 
     } else if(argv[1][1] == 'l' && argv[1][2] == 'i') {
         string listType = string(argv[2]);
@@ -171,7 +175,7 @@ int main(int argc, char **argv) {
 
         typeName.resize(TYPE_NAME, (char) 0x20);
 
-        sysCatalog->createRecord(typeName, fields);
+        dml->createRecord(typeName, fields);
     } else if(argv[1][1] == 's') {
         string searchType = string(argv[2]);
 
@@ -179,7 +183,7 @@ int main(int argc, char **argv) {
 
         int32 searchValue = stoi(string(argv[3]));
 
-        auto record = sysCatalog->searchByPrimaryKey(searchType, searchValue);
+        auto record = dml->searchRecord(searchType, searchValue);
 
         std::cout << (int) record->recordID << std::endl;
 
@@ -195,6 +199,10 @@ int main(int argc, char **argv) {
 
         deleteType.resize(8, (char) 0x20);
 
+        int32 searchValue = stoi(string(argv[3]));
+
+        dml->deleteRecord(deleteType, searchValue);
+
     } else if(argv[1][1] == 'u') {
         string updateType = string(argv[2]);
 
@@ -208,7 +216,7 @@ int main(int argc, char **argv) {
             fields[i - 4] = stoi(string(argv[i]));
         }
 
-        sysCatalog->updateRecord(updateType, updateKey, fields);
+        dml->updateRecord(updateType, updateKey, fields);
     }
 
     delete sysCatalog;
