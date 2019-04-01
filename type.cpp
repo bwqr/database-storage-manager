@@ -10,7 +10,7 @@ type::type(std::string &typeName, uint8 numFields): type() {
     this->numFields = numFields;
     this->cardinality = 0;
     this->primaryKey = 0;
-    this->fieldsName = new std::string[numFields];
+    this->fieldsName = std::vector<std::string>(numFields);
 }
 
 void type::read(std::fstream &stream, int offset) {
@@ -22,7 +22,7 @@ void type::read(std::fstream &stream, int offset) {
     stream.read((char *) &this->cardinality, CARDINALITY);
     stream.read((char *) &this->primaryKey, PRIMARY_KEY);
 
-    this->fieldsName = new std::string[this->numFields];
+    this->fieldsName = std::vector<std::string>(this->numFields);
 
     for (int j = 0; j < this->numFields; ++j) {
         this->fieldsName[j] = std::string(8, 0x20);

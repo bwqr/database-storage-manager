@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "dml.h"
 #include "helpers.h"
 #include "page.h"
@@ -196,6 +197,8 @@ void dml::listRecords(string typeName, ostream &stream) {
 
         currFileLink = file.nextFile;
     } while(currFileLink != 0);
+
+    sort(records.begin(), records.end());
 
     for (const auto &record: records) {
 

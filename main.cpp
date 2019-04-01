@@ -1,8 +1,8 @@
 #include <iostream>
 #include <string>
-#include "system_catalog.h"
 #include <sstream>
 #include <fstream>
+#include "system_catalog.h"
 #include "ddl.h"
 #include "dml.h"
 #include "defs.h"
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 
                 iss >> numFields;
 
-                auto *fields = new string[numFields];
+                auto fields = new string[numFields];
 
                 for (int i = 0; i < numFields; ++i) {
                     iss >> fields[i];
@@ -49,6 +49,8 @@ int main(int argc, char **argv) {
                 }
 
                 ddl->createType(typeName, numFields, fields);
+
+                delete[] fields;
 
             } else if(command == "delete" && command_type == "type"){
 
@@ -70,6 +72,8 @@ int main(int argc, char **argv) {
                     }
 
                     dml->createRecord(typeName, fields);
+
+                    delete[] fields;
                 }
 
             } else if(command == "delete" && command_type == "record") {
@@ -94,6 +98,8 @@ int main(int argc, char **argv) {
                     }
 
                     dml->updateRecord(typeName, primaryKey, fields);
+
+                    delete[] fields;
                 }
 
             } else if(command == "search" && command_type == "record") {
@@ -193,6 +199,7 @@ int main(int argc, char **argv) {
 
         std::cout << endl;
 
+        delete record;
 
     } else if(argv[1][1] == 'r' && argv[1][2] == 'd') {
         string deleteType = string(argv[2]);
@@ -220,6 +227,10 @@ int main(int argc, char **argv) {
     }
 
     delete sysCatalog;
+
+    delete dml;
+
+    delete ddl;
 
     return 0;
 }

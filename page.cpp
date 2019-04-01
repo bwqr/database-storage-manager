@@ -1,6 +1,8 @@
 #include "page.h"
 #include <iostream>
-page::page() {
+
+page::~page() {
+    delete[] this->slots;
 }
 
 page::page(uint8 pageID, uint32 recordSize, uint8 slotSize) {
@@ -40,5 +42,37 @@ std::vector<record> page::getRecords(std::fstream &stream, int offset, uint8 num
     }
 
     return records;
+}
+
+page::page(const page &p) {
+    pageID = p.pageID;
+    numRecords = p.numRecords;
+    slotSize = p.slotSize;
+    recordSize = p.recordSize;
+
+    slots = new uint8[slotSize];
+
+    for (int i = 0; i < slotSize; ++i) {
+        slots[i] = p.slots[i];
+    }
+}
+
+page &page::operator=(const page &p) {
+    if(this != &p) {
+        this->~page();
+
+        pageID = p.pageID;
+        numRecords = p.numRecords;
+        slotSize = p.slotSize;
+        recordSize = p.recordSize;
+
+        slots = new uint8[slotSize];
+
+        for (int i = 0; i < slotSize; ++i) {
+            slots[i] = p.slots[i];
+        }
+    }
+
+    return *this;
 }
 

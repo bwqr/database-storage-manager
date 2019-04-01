@@ -13,6 +13,8 @@ void ddl::createType(std::string typeName, int numFields, std::string *fields) {
 
     if(i != systemCatalog->types.end()) {
         cout << "type already exists, type: " << typeName << endl;
+
+        return;
     }
 
     type type(typeName, (int8) numFields);

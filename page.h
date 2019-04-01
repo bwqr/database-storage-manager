@@ -17,9 +17,15 @@ public:
     int32 recordSize;
     uint8 *slots;
 
-    page();
+    page() = default;
+
+    ~page();
 
     page(uint8 pageID, uint32 recordSize, uint8 slotSize);
+
+    page(const page& p);
+
+    page& operator=(const page& p);
 
     std::vector<record> getRecords(std::fstream &stream, int offset, uint8 numFields);
 

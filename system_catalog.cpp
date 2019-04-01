@@ -1,6 +1,7 @@
-#include "system_catalog.h"
 #include <fstream>
+#include <sys/stat.h>
 #include <iostream>
+#include "system_catalog.h"
 #include <set>
 #include "defs.h"
 #include "type.h"
@@ -39,6 +40,13 @@ SystemCatalog::SystemCatalog() {
 }
 
 void SystemCatalog::createCatalogFile() {
+
+    if(mkdir((ROOT).c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1 && errno != EEXIST) {
+        cout << "data directory cannot be created, storageManager failed to continue, exiting ...";
+
+        exit(-1);
+    }
+
     ofstream _catalogFile(ROOT + "SystemCatalog", OUTBIN);
 
     int num_types = 0;

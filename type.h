@@ -5,15 +5,16 @@
 #include <string>
 #include <fstream>
 #include <set>
+#include <vector>
 #include "index.h"
 
 class type {
 public:
     std::string typeName;
-    uint8 numFields;
+    uint8 numFields = 0;
     mutable uint64 cardinality;
     uint8 primaryKey;
-    std::string* fieldsName;
+    std::vector<std::string> fieldsName;
     mutable std::set<index> indexes;
 
     mutable bool is_index_read = false;

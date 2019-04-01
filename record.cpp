@@ -1,8 +1,5 @@
 #include "record.h"
 #include <iostream>
-record::record() {
-
-}
 
 record::record(uint8 recordID, uint8 numFields) {
     this->recordID = recordID;
@@ -22,4 +19,38 @@ void record::write(std::fstream &stream, int offset) {
 
     stream.write((char *) &this->recordID, RECORD_ID);
     stream.write((char *) this->fields, this->numFields* FIELD);
+}
+
+record::~record() {
+    if (numFields > 0) {
+
+        delete[] this->fields;
+    }
+}
+
+record::record(const record &r) {
+    recordID = r.recordID;
+    numFields = r.numFields;
+
+    fields = new int32[numFields];
+
+    for (int i = 0; i < numFields; ++i) {
+        fields[i] = r.fields[i];
+    }
+}
+
+record &record::operator=(const record &r) {
+    if(this != &r) {
+        this->~record();
+
+        recordID = r.recordID;
+        numFields = r.numFields;
+
+        fields = new int32[numFields];
+
+        for (int i = 0; i < numFields; ++i) {
+            fields[i] = r.fields[i];
+        }
+    }
+    return *this;
 }
