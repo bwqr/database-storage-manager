@@ -13,11 +13,11 @@ void dml::createRecord(string typeName, int32 *fields) {
 
     if(type == systemCatalog->types.end()) { return; }
 
-    if(systemCatalog->checkExist(*type, fields[0])) {
-        cout << "Duplicate primary key: " << fields[0] << endl;
-
-        return;
-    }
+//    if(systemCatalog->checkExist(*type, fields[0])) {
+//        cout << "Duplicate primary key: " << fields[0] << endl;
+//
+//        return;
+//    }
 
     uint32 currFileLink = 1;
 

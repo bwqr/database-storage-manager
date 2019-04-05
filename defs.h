@@ -25,8 +25,15 @@
 #define NUM_FIELDS 1
 #define TYPE_NAME 8
 #define CARDINALITY 8
-#define PRIMARY_KEY 1
 #define FIELD_NAME 8
 #define FIELD 4
+#define PRIMARY_KEY FIELD
+
+#define BTREE_D 127
+#define BTREE_ID 4
+#define INDEX_PER_BTREE (BTREE_D * 2 + 1)
+#define NUM_BTREE 1
+#define BTREE_POINTER 4
+#define BTREE_LEAF 1
 
 #endif //SRC_DEFS_H

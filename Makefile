@@ -70,7 +70,7 @@ rebuild_cache/fast: rebuild_cache
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/bin/cmake-gui -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/usr/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -122,6 +122,60 @@ storageManager: cmake_check_build_system
 storageManager/fast:
 	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/build
 .PHONY : storageManager/fast
+
+btree.o: btree.cpp.o
+
+.PHONY : btree.o
+
+# target to build an object file
+btree.cpp.o:
+	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/btree.cpp.o
+.PHONY : btree.cpp.o
+
+btree.i: btree.cpp.i
+
+.PHONY : btree.i
+
+# target to preprocess a source file
+btree.cpp.i:
+	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/btree.cpp.i
+.PHONY : btree.cpp.i
+
+btree.s: btree.cpp.s
+
+.PHONY : btree.s
+
+# target to generate assembly for a file
+btree.cpp.s:
+	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/btree.cpp.s
+.PHONY : btree.cpp.s
+
+btree_node.o: btree_node.cpp.o
+
+.PHONY : btree_node.o
+
+# target to build an object file
+btree_node.cpp.o:
+	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/btree_node.cpp.o
+.PHONY : btree_node.cpp.o
+
+btree_node.i: btree_node.cpp.i
+
+.PHONY : btree_node.i
+
+# target to preprocess a source file
+btree_node.cpp.i:
+	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/btree_node.cpp.i
+.PHONY : btree_node.cpp.i
+
+btree_node.s: btree_node.cpp.s
+
+.PHONY : btree_node.s
+
+# target to generate assembly for a file
+btree_node.cpp.s:
+	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/btree_node.cpp.s
+.PHONY : btree_node.cpp.s
 
 ddl.o: ddl.cpp.o
 
@@ -402,6 +456,12 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... storageManager"
 	@echo "... edit_cache"
+	@echo "... btree.o"
+	@echo "... btree.i"
+	@echo "... btree.s"
+	@echo "... btree_node.o"
+	@echo "... btree_node.i"
+	@echo "... btree_node.s"
 	@echo "... ddl.o"
 	@echo "... ddl.i"
 	@echo "... ddl.s"

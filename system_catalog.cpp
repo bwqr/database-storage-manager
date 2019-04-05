@@ -7,6 +7,7 @@
 #include "type.h"
 #include "index.h"
 #include "helpers.h"
+#include "btree.h"
 
 using namespace std;
 
@@ -109,11 +110,7 @@ void SystemCatalog::readIndex(const type &type) {
 
     for (int i = 0; i < type.cardinality; ++i) {
         index index;
-        indexFile.read((char *) &index.file_id, FILE_ID );
-        indexFile.read((char *) &index.page_id, PAGE_ID);
-        indexFile.read((char *) &index.record_id, RECORD_ID);
-        indexFile.read((char *) &index.value, FIELD);
-
+        index.read(indexFile);
         type.indexes.insert(index);
     }
 
@@ -121,9 +118,14 @@ void SystemCatalog::readIndex(const type &type) {
 }
 
 void SystemCatalog::insertIndex(const type &type, uint32 file_id, uint8 page_id, uint8 record_id, int32 value) {
-    readIndex(type);
+//    readIndex(type);
+    btree tree(type.typeName, type.index_root_pointer);
 
-    type.indexes.insert(index(file_id, page_id, record_id, value));
+    index index(file_id, page_id, record_id, value);
+    btree_node* node = nullptr;
+    tree.insert(type.index_root_pointer, index, node);
+    type.index_root_pointer = tree.root_pointer;
+//    type.indexes.insert(index(file_id, page_id, record_id, value));
 }
 
 void SystemCatalog::write() {

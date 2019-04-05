@@ -1,6 +1,9 @@
 #include "helpers.h"
 #include <fstream>
+#include <random>
+#include <sys/stat.h>
 #include "defs.h"
+#include "btree_node.h"
 
 std::string truncateName(std::string name) {
 
@@ -32,13 +35,34 @@ void linkFiles(const string typeName, uint32 prevFileLink, uint32 nextFileLink) 
 }
 
 int calcTypeSize(int numFields) {
-    return TYPE_NAME + NUM_FIELDS + CARDINALITY + PRIMARY_KEY + numFields * FIELD_NAME;
+    return TYPE_NAME + NUM_FIELDS + CARDINALITY + PRIMARY_KEY + numFields * FIELD_NAME + BTREE_ID;
 }
 
 void createIndex(std::string typeName) {
-    std::ofstream indexFile(ROOT + truncateName(typeName) + INFIX + "index", OUTBIN);
+    std::fstream rootFile(ROOT + truncateName(typeName) + INFIX + "index" + INFIX + "1", OUTBIN);
+    std::fstream leftFile(ROOT + truncateName(typeName) + INFIX + "index" + INFIX + "2", OUTBIN);
+    std::fstream rightFile(ROOT + truncateName(typeName) + INFIX + "index" + INFIX + "3", OUTBIN);
 
-    indexFile.close();
+    btree_node root(1);
+    btree_node left(2);
+    btree_node right(3);
+
+    root.pointers[0] = left.id;
+    root.pointers[1] = right.id;
+    root.indices.insert(index(0,0,0,0));
+    root.leaf = false;
+    root.n++;
+
+    left.rightSibling = right.id;
+    right.leftSibling = left.id;
+
+    root.write(rootFile);
+    left.write(leftFile);
+    right.write(rightFile);
+
+    rootFile.close();
+    leftFile.close();
+    rightFile.close();
 }
 
 void linkFiles(const string typeName, uint32 currFileLink, uint32 prevFileLink, uint32 nextFileLink) {
@@ -79,4 +103,31 @@ file createAndLinkFiles(string typeName, uint32 currFile, uint32 prevFile, uint3
     linkFiles(typeName, currFile, prevFile, nextFile);
 
     return file;
+}
+
+
+bool checkFileExist(const std::string &name) {
+    struct stat buffer;
+
+    return (stat(name.c_str(), &buffer) == 0);
+}
+
+std::string generateIndexFileName(const std::string &typeName, uint32 postfix) {
+    return ROOT + truncateName(typeName) + INFIX + "index" + INFIX + to_string(postfix);
+}
+
+uint32 generateIndexFilePostfix(const std::string &typeName) {
+
+    bool file_exist;
+
+    uint32 postfix;
+
+    do {
+        postfix = random();
+
+        file_exist = checkFileExist(generateIndexFileName(typeName, postfix));
+
+    } while(file_exist);
+
+    return postfix;
 }

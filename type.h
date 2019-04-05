@@ -14,6 +14,7 @@ public:
     uint8 numFields = 0;
     mutable uint64 cardinality;
     uint8 primaryKey;
+    mutable uint32 index_root_pointer;
     std::vector<std::string> fieldsName;
     mutable std::set<index> indexes;
 

@@ -20,4 +20,9 @@ file createAndLinkFiles(string typeName, uint32 currFile, uint32 prevFile, uint3
 
 int calcTypeSize(int numFields);
 
+bool checkFileExist(const std::string &name);
+
+std::string generateIndexFileName(const std::string &typeName, uint32 postfix);
+
+uint32 generateIndexFilePostfix(const std::string &typeName);
 #endif //SRC_HELPERS_H

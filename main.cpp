@@ -6,6 +6,7 @@
 #include "ddl.h"
 #include "dml.h"
 #include "defs.h"
+#include "btree.h"
 
 int main(int argc, char **argv) {
     if(argc < 3) {
@@ -70,6 +71,8 @@ int main(int argc, char **argv) {
                     for(int i = 0; i < type->numFields; i++) {
                         iss >> fields[i];
                     }
+
+                    cout << fields[0];
 
                     dml->createRecord(typeName, fields);
 
@@ -161,13 +164,36 @@ int main(int argc, char **argv) {
 
         listType.resize(TYPE_NAME, (char) 0x20);
 
-        auto indexes = sysCatalog->listIndex(listType);
+//        auto indexes = sysCatalog->listIndex(listType);
+//
+//        for (auto i = indexes.begin(); i != indexes.end(); ++i) {
+//            std::cout << i->file_id << " " << (int) i->page_id << " "
+//                << (int) i->record_id << " " << i->value << std::endl;
+//        }
 
-        for (auto i = indexes.begin(); i != indexes.end(); ++i) {
-            std::cout << i->file_id << " " << (int) i->page_id << " "
-                << (int) i->record_id << " " << i->value << std::endl;
-        }
+        auto type = sysCatalog->getType(listType);
 
+        btree btree(type->typeName, type->index_root_pointer);
+
+        btree.traverse();
+
+    } else if (argv[1][1] == 'l' && argv[1][2] == 'p'){
+        string listType = string(argv[2]);
+
+        listType.resize(TYPE_NAME, (char) 0x20);
+
+//        auto indexes = sysCatalog->listIndex(listType);
+//
+//        for (auto i = indexes.begin(); i != indexes.end(); ++i) {
+//            std::cout << i->file_id << " " << (int) i->page_id << " "
+//                << (int) i->record_id << " " << i->value << std::endl;
+//        }
+
+        auto type = sysCatalog->getType(listType);
+
+        btree btree(type->typeName, type->index_root_pointer);
+
+        btree.traversePointers();
     } else if(argv[1][1] == 'l') {
         sysCatalog->listTypes(cout);
     } else if(argv[1][1] == 'r' && argv[1][2] == 'c') {
