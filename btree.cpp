@@ -10,10 +10,67 @@ bool hasSpace(uint8 &n) {
     return n < INDEX_PER_BTREE;
 }
 
+
+
+void btree::findDistributeSibling(btree_node &node, btree_node &sibling, btree_node *parent) {
+
+    if(node.leftSibling != 0) {
+        fstream siblingFile(generateIndexFileName(typeName, node.leftSibling), INOUTBIN);
+
+        sibling.read(siblingFile);
+
+        if(sibling == parent) {
+            errno = sibling.n > BTREE_D ? 0: 1 ; //same parent, however not have extra
+
+            return;
+        }
+
+    }
+
+    if(node.rightSibling != 0) {
+        fstream siblingFile(generateIndexFileName(typeName, node.leftSibling), INOUTBIN);
+
+        sibling.read(siblingFile);
+
+        if(sibling.parent == parent) {
+            errno = sibling.n > BTREE_D ? 0: 1 ; //same parent, however not have extra
+
+            return;
+        }
+    }
+
+    errno = -1;
+}
+
+child_entry redistributeNodes(btree_node &main_node, btree_node &sibling_node, btree_node* parent) {
+
+}
+
+child_entry* mergeNodes(btree_node &main_node, btree_node &sibling_node, btree_node* parent) {
+
+}
+
 void bindSiblings(btree_node &left_node, btree_node &right_node) {
     right_node.rightSibling = left_node.rightSibling;
     left_node.rightSibling = right_node.id;
     right_node.leftSibling = left_node.id;
+}
+
+void popIndexByIndex(btree_node &node, const struct child_entry &entry) {
+    int k = 0;
+
+    for(auto i = node.indices.begin(); i != node.indices.end(); ++i, ++k) {
+        if(entry.index.value == i->value) {
+            node.indices.erase(i);
+            break;
+        }
+    }
+
+    for (int j = k; j < node.n; ++j) {
+        node.pointers[j] = node.pointers[j + 1];
+    }
+
+    node.n--;
 }
 
 void pushIndex(btree_node &node, const struct child_entry &entry) {
@@ -61,7 +118,7 @@ struct child_entry* splitNode(btree_node &main_node, btree_node &split_node) {
     return entry;
 }
 
-void createAndWriteFile(const btree_node &node, string typeName) {
+void createAndWriteFile(const btree_node &node, string &typeName) {
     fstream node_file(generateIndexFileName(typeName, node.id), OUTBIN);
 
     node.write(node_file);
@@ -183,7 +240,6 @@ void btree::insert(uint32 pointer, index &index, struct child_entry * &entry) {
                 createAndWriteFile(split_sibling, typeName);
             }
         }
-
     }
 
     if(entry != nullptr && this->root_pointer == btreeNode.id) {
@@ -195,6 +251,12 @@ void btree::insert(uint32 pointer, index &index, struct child_entry * &entry) {
         new_root.leaf = false;
         new_root.n = 1;
         this->root_pointer = new_root.id;
+
+        fstream siblingFile(generateIndexFileName(typeName, entry->pointer), INOUTBIN);
+        btree_node sibling(0);
+        sibling.read(siblingFile);
+        sibling.write(siblingFile);
+        siblingFile.close();
         createAndWriteFile(new_root, typeName);
     }
 
@@ -268,3 +330,50 @@ void btree::traversePointers() {
 
     }
 }
+
+void btree::insertIndex(index index) {
+    struct child_entry *node = nullptr;
+
+    this->insert(this->root_pointer, index, node);
+}
+
+void btree::deleteIndex(index index) {
+    struct child_entry *node = nullptr;
+
+    btree_node *parent = nullptr;
+
+    this->_delete(parent, this->root_pointer, index, node);
+}
+
+void btree::_delete(btree_node *parent, uint32 pointer, index &index, child_entry *&old_entry) {
+    fstream nodeFile(generateIndexFileName(typeName, pointer), INOUTBIN);
+
+    btree_node btreeNode(0);
+
+    btreeNode.read(nodeFile);
+
+    if(btreeNode.leaf) {
+        child_entry entry = {0, index};
+        if(btreeNode.n > BTREE_D) {
+            popIndexByIndex(btreeNode, entry);
+            old_entry = nullptr;
+        } else {
+            btree_node sibling(0);
+
+            findDistributeSibling(btreeNode, sibling, parent);
+
+            if(sibling.n > BTREE_D) {
+                redistributeNodes(btreeNode,sibling, parent);
+            } else {
+                old_entry = mergeNodes(btreeNode,sibling, parent);
+            }
+        }
+    } else {
+
+    }
+}
+
+void btree::updateIndex(btree_node &btreeNode, index &index) {
+
+}
+
