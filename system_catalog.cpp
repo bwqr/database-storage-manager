@@ -86,14 +86,10 @@ set<type>::iterator SystemCatalog::getType(string &typeName) {
     return i;
 }
 
-set<index>::iterator SystemCatalog::searchKey(const type &type, int32 primaryKey) {
-    readIndex(type);
+index SystemCatalog::searchKey(const type &type, int32 primaryKey) {
+    btree tree(type.typeName, type.index_root_pointer);
 
-    index index(0,0,0,primaryKey);
-
-    auto i = type.indexes.find(index);
-
-    return i;
+    return tree.search(primaryKey);
 }
 
 void SystemCatalog::readIndex(const type &type) {
@@ -122,7 +118,7 @@ void SystemCatalog::insertIndex(const type &type, uint32 file_id, uint8 page_id,
     btree tree(type.typeName, type.index_root_pointer);
 
     index index(file_id, page_id, record_id, value);
-    btree_node* node = nullptr;
+    struct child_entry* node = nullptr;
     tree.insert(type.index_root_pointer, index, node);
     type.index_root_pointer = tree.root_pointer;
 //    type.indexes.insert(index(file_id, page_id, record_id, value));
@@ -159,5 +155,5 @@ bool SystemCatalog::checkExist(const type &type, int32 primaryKey) {
 
     auto index = this->searchKey(type, primaryKey);
 
-    return index != type.indexes.end();
+    return errno == 0;
 }

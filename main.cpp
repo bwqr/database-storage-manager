@@ -72,8 +72,6 @@ int main(int argc, char **argv) {
                         iss >> fields[i];
                     }
 
-                    cout << fields[0];
-
                     dml->createRecord(typeName, fields);
 
                     delete[] fields;
@@ -215,17 +213,24 @@ int main(int argc, char **argv) {
 
         int32 searchValue = stoi(string(argv[3]));
 
-        auto record = dml->searchRecord(searchType, searchValue);
+        auto type = sysCatalog->getType(searchType);
 
-        std::cout << (int) record->recordID << std::endl;
+        btree tree(type->typeName, type->index_root_pointer);
 
-        for (int i = 0; i < record->numFields; ++i) {
-            std::cout << "\t" << record->fields[i] << "\t";
-        }
+        auto i = tree.search(searchValue);
 
-        std::cout << endl;
+        std::cout << i.file_id << "\t" << (int) i.page_id << "\t" << (int) i.record_id << "\t" << i.value << std::endl;
+//        auto record = dml->searchRecord(searchType, searchValue);
 
-        delete record;
+//        std::cout << (int) record->recordID << std::endl;
+//
+//        for (int i = 0; i < record->numFields; ++i) {
+//            std::cout << "\t" << record->fields[i] << "\t";
+//        }
+//
+//        std::cout << endl;
+//
+//        delete record;
 
     } else if(argv[1][1] == 'r' && argv[1][2] == 'd') {
         string deleteType = string(argv[2]);

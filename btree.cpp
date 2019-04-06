@@ -2,8 +2,72 @@
 #include <fstream>
 #include <iostream>
 #include <queue>
+#include <algorithm>
 #include "defs.h"
 #include "helpers.h"
+
+bool hasSpace(uint8 &n) {
+    return n < INDEX_PER_BTREE;
+}
+
+void bindSiblings(btree_node &left_node, btree_node &right_node) {
+    right_node.rightSibling = left_node.rightSibling;
+    left_node.rightSibling = right_node.id;
+    right_node.leftSibling = left_node.id;
+}
+
+void pushIndex(btree_node &node, const struct child_entry &entry) {
+    //insert into the position
+    int k = 0;
+
+    for(auto i = node.indices.begin(); i != node.indices.end(); ++i, ++k) {
+        if(entry.index.value < i->value) {
+            node.indices.insert(i, entry.index);
+            break;
+        }
+
+    }
+
+    if(k == node.n) {
+        node.indices.push_back(entry.index);
+    }
+
+    //Shift the pointers
+    for (int j = node.n + 1; j > k; --j) {
+        node.pointers[j] = node.pointers[j - 1];
+    }
+
+    node.pointers[k + 1] = entry.pointer;
+
+    node.n++;
+}
+
+struct child_entry* splitNode(btree_node &main_node, btree_node &split_node) {
+    split_node.indices.clear();
+    split_node.indices.resize(BTREE_D);
+
+    auto entry = new child_entry {split_node.id, main_node.indices[BTREE_D]};
+    int i = BTREE_D + 1, k = 0;
+    for (; i < INDEX_PER_BTREE; ++i, ++k) {
+        split_node.indices[k] = main_node.indices[i];
+        split_node.pointers[k] = main_node.pointers[i];
+    }
+
+    split_node.pointers[k] = main_node.pointers[i];
+
+    split_node.n = BTREE_D;
+    main_node.n = BTREE_D;
+
+    return entry;
+}
+
+void createAndWriteFile(const btree_node &node, string typeName) {
+    fstream node_file(generateIndexFileName(typeName, node.id), OUTBIN);
+
+    node.write(node_file);
+
+    node_file.close();
+}
 
 index btree::search(int32 primaryKey) {
     return this->tree_search(this->root_pointer, primaryKey);
@@ -15,13 +79,15 @@ btree::btree(const std::string &typeName, uint32 root_pointer) {
 }
 
 index btree::tree_search(uint32 pointer, int32 primaryKey) {
-    std::fstream nodeFile(ROOT + truncateName(typeName) + "index_" + to_string(pointer));
+    std::fstream nodeFile(generateIndexFileName(typeName, pointer));
 
     btree_node btreeNode(0);
 
     btreeNode.read(nodeFile);
 
     nodeFile.close();
+
+    errno = 0;
 
     if (btreeNode.leaf) {
         for(auto &i : btreeNode.indices) {
@@ -39,6 +105,8 @@ index btree::tree_search(uint32 pointer, int32 primaryKey) {
     for (auto &i: btreeNode.indices) {
         if(primaryKey < i.value) {
             return this->tree_search(btreeNode.pointers[k], primaryKey);
+        } else if(primaryKey == i.value) {
+            return i;
         }
 
         k++;
@@ -47,155 +115,92 @@ index btree::tree_search(uint32 pointer, int32 primaryKey) {
     return this->tree_search(btreeNode.pointers[k], primaryKey);
 }
 
-void btree::insert(uint32 pointer, index &index, btree_node *&new_child_entry) {
+void btree::insert(uint32 pointer, index &index, struct child_entry * &entry) {
+
     fstream nodeFile(generateIndexFileName(typeName, pointer), INOUTBIN);
 
     btree_node btreeNode(0);
 
     btreeNode.read(nodeFile);
 
-    if (!btreeNode.leaf) {
-        int i = 0;
+    if(btreeNode.leaf) {
+        struct child_entry new_entry = {0, index};
 
-        for (auto &in: btreeNode.indices) {
-            if(index.value < in.value) {
-                this->insert(btreeNode.pointers[i], index, new_child_entry);
+        if(hasSpace(btreeNode.n)) {
+            pushIndex(btreeNode, new_entry);
+            entry = nullptr;
+        } else {
+            btree_node split_child(generateIndexFilePostfix(typeName));
+            entry = splitNode(btreeNode, split_child);
+
+            if(index.value < entry->index.value) {
+                pushIndex(btreeNode, new_entry);
+            } else {
+                pushIndex(split_child, new_entry);
+            }
+
+            bindSiblings(btreeNode, split_child);
+
+            createAndWriteFile(split_child, typeName);
+        }
+    } else {
+        auto iterator = btreeNode.indices.begin();
+        int iterator_index = 0;
+        for (; iterator != btreeNode.indices.end(); ++iterator, ++iterator_index) {
+            if(index.value < iterator->value) {
+                this->insert(btreeNode.pointers[iterator_index], index, entry);
                 break;
             }
-
-            i++;
         }
 
-        if(i == btreeNode.n) {
-            this->insert(btreeNode.pointers[i], index, new_child_entry);
+        if(iterator == btreeNode.indices.end()) {
+            this->insert(btreeNode.pointers[iterator_index], index, entry);
         }
 
-        if (new_child_entry != nullptr) {
-            if (btreeNode.n < INDEX_PER_BTREE) {
-                int j = i;
-                for (; j < btreeNode.n; ++j) {
-                    btreeNode.pointers[j + 1] = btreeNode.pointers[j];
-                }
-                btreeNode.pointers[j + 1] = btreeNode.pointers[j];
-
-                btreeNode.pointers[i + 1] = new_child_entry->id;
-                btreeNode.pointers[i] = new_child_entry->leftSibling;
-                btreeNode.indices.insert(*new_child_entry->indices.begin());
-                new_child_entry = nullptr;
-                btreeNode.n++;
+        if(entry != nullptr) {
+            if(hasSpace(btreeNode.n)) {
+                pushIndex(btreeNode, *entry);
+                delete entry;
+                entry = nullptr;
             } else {
-                auto new_sibling = new btree_node(generateIndexFilePostfix(typeName));
+                btree_node split_sibling(generateIndexFilePostfix(typeName));
+                split_sibling.leaf = false;
 
-                for (int i = BTREE_D, k = 0; i < INDEX_PER_BTREE; ++i, k++) {
+                auto new_entry = splitNode(btreeNode, split_sibling);
 
-                    auto in = btreeNode.indices.rbegin();
-                    new_sibling->indices.insert(*in);
-                    btreeNode.indices.erase(*in);
-                    new_sibling->pointers[k] = btreeNode.pointers[i + 1];
-                }
-
-
-                btreeNode.n = BTREE_D;
-                new_sibling->n = INDEX_PER_BTREE - BTREE_D;
-
-                if(new_child_entry->indices.begin()->value < new_sibling->indices.begin()->value) {
-                    btreeNode.indices.insert(*new_child_entry->indices.begin());
-                    btreeNode.pointers[btreeNode.n] = new_child_entry->id;
-                    btreeNode.n++;
+                if(entry->index.value < new_entry->index.value) {
+                    pushIndex(btreeNode, *entry);
                 } else {
-                    new_sibling->indices.insert(*new_child_entry->indices.begin());
-                    new_sibling->pointers[new_sibling->n] = new_child_entry->id;
-                    new_sibling->n++;
+                    pushIndex(split_sibling, *entry);
                 }
 
-                new_sibling->rightSibling = btreeNode.rightSibling;
-                btreeNode.rightSibling= new_sibling->id;
-                new_sibling->leftSibling = btreeNode.id;
+                bindSiblings(btreeNode, split_sibling);
 
-                if (btreeNode.id == this->root_pointer) {
-                    btree_node newRoot(generateIndexFilePostfix(typeName));
+                delete entry;
 
-                    newRoot.pointers[0] = btreeNode.id;
-                    newRoot.pointers[1] = new_sibling->id;
-                    newRoot.indices.insert(*new_sibling->indices.begin());
+                entry = new_entry;
 
-                    newRoot.leaf = false;
-                    this->root_pointer = newRoot.id;
-                    fstream newRootFile(generateIndexFileName(typeName, newRoot.id), OUTBIN);
-
-                    newRoot.write(newRootFile);
-
-                    newRootFile.close();
-
-                    this->root_pointer = newRoot.id;
-                } else {
-                    new_child_entry = new_sibling;
-                }
-                fstream newSiblingFile(generateIndexFileName(typeName, new_sibling->id), OUTBIN);
-
-                new_sibling->write(newSiblingFile);
-
-                newSiblingFile.close();
+                createAndWriteFile(split_sibling, typeName);
             }
-
-            btreeNode.write(nodeFile);
         }
-        nodeFile.close();
-        return;
-    } else {
-        if(btreeNode.n < INDEX_PER_BTREE) {
-            btreeNode.indices.insert(index);
-            btreeNode.n++;
-            new_child_entry = nullptr;
-            btreeNode.write(nodeFile);
-            nodeFile.close();
-            return;
-        } else {
-            new_child_entry = new btree_node(generateIndexFilePostfix(typeName));
 
-            auto iterator = btreeNode.indices.begin();
-
-            for (int i = 0; i < BTREE_D; ++i) {
-                i++;
-            }
-
-            new_child_entry->indices = set<class index>(btreeNode.indices.begin(), iterator);
-
-            btreeNode.indices = set<class index>(++iterator, btreeNode.indices.end());
-
-            for (int i = BTREE_D, k = 0; i < INDEX_PER_BTREE; ++i, k++) {
-                new_child_entry->pointers[k] = btreeNode.pointers[i + 1];
-            }
-
-
-            btreeNode.n = BTREE_D;
-            new_child_entry->n = INDEX_PER_BTREE - BTREE_D;
-
-            if(index.value < new_child_entry->indices.begin()->value) {
-                btreeNode.indices.insert(index);
-                btreeNode.n++;
-            } else {
-                new_child_entry->indices.insert(index);
-                new_child_entry->n++;
-            }
-
-            btreeNode.rightSibling = new_child_entry->id;
-            new_child_entry->leftSibling = btreeNode.id;
-
-            fstream newChildEntryFile(generateIndexFileName(typeName, new_child_entry->id), OUTBIN);
-
-            new_child_entry->write(newChildEntryFile);
-
-            newChildEntryFile.close();
-
-            btreeNode.write(nodeFile);
-
-            nodeFile.close();
-
-            return;
-        }
     }
-}
+
+    if(entry != nullptr && this->root_pointer == btreeNode.id) {
+        btree_node new_root(generateIndexFilePostfix(typeName));
+
+        new_root.indices.push_back(entry->index);
+        new_root.pointers[0] = btreeNode.id;
+        new_root.pointers[1] = entry->pointer;
+        new_root.leaf = false;
+        new_root.n = 1;
+        this->root_pointer = new_root.id;
+        createAndWriteFile(new_root, typeName);
+    }
+
+    btreeNode.write(nodeFile);
+    nodeFile.close();
+};
 
 void btree::traverse() {
     queue<uint32> nodes;
@@ -214,12 +219,12 @@ void btree::traverse() {
 
         nodeFile.close();
 
-        if(node.leaf) {
+        for(auto &i: node.indices) {
+            std::cout << node.id  << "\t" << i.file_id << "\t" << (int) i.page_id << "\t" << (int) i.record_id << "\t" << i.value << std::endl;
+        }
 
-            for(auto &i: node.indices) {
-                std::cout << node.id  << "\t" << i.file_id << "\t" << (int) i.page_id << "\t" << (int) i.record_id << "\t" << i.value << std::endl;
-            }
-        } else {
+        if(!node.leaf) {
+
             for (int i = 0; i < node.n + 1; ++i) {
                 nodes.push(node.pointers[i]);
             }
@@ -253,6 +258,8 @@ void btree::traversePointers() {
                 nodes.push(node.pointers[i]);
                 i++;
             }
+
+            std::cout << node.pointers[i];
 
             std::cout << std::endl;
         }

@@ -13,11 +13,11 @@ void dml::createRecord(string typeName, int32 *fields) {
 
     if(type == systemCatalog->types.end()) { return; }
 
-//    if(systemCatalog->checkExist(*type, fields[0])) {
-//        cout << "Duplicate primary key: " << fields[0] << endl;
-//
-//        return;
-//    }
+    if(systemCatalog->checkExist(*type, fields[0])) {
+        cout << "Duplicate primary key: " << fields[0] << endl;
+
+        return;
+    }
 
     uint32 currFileLink = 1;
 
@@ -97,7 +97,7 @@ void dml::deleteRecord(string typeName, int32 primaryKey) {
 
     auto index = systemCatalog->searchKey(*type, primaryKey);
 
-    if(index == type->indexes.end()) {
+    if(errno == -1) {
         cout << "Record could not be found, type: " << truncateName(typeName) << ", key: " << primaryKey << endl;
 
         return;
@@ -105,7 +105,7 @@ void dml::deleteRecord(string typeName, int32 primaryKey) {
 
     systemCatalog->readIndex(*type);
 
-    fstream searchFile(ROOT + truncateName(typeName) + INFIX + to_string(index->file_id), INOUTBIN);
+    fstream searchFile(ROOT + truncateName(typeName) + INFIX + to_string(index.file_id), INOUTBIN);
 
     //find the slot and set ZERO
 
@@ -120,7 +120,7 @@ void dml::deleteRecord(string typeName, int32 primaryKey) {
     type->indexes.erase(index);
 
     if (file.numRecords == 0 && file.prevFile != 0) {
-        remove((ROOT + truncateName(typeName) + INFIX + to_string(index->file_id)).c_str());
+        remove((ROOT + truncateName(typeName) + INFIX + to_string(index.file_id)).c_str());
 
         linkFiles(typeName, file.prevFile, file.nextFile);
 
@@ -135,7 +135,7 @@ void dml::deleteRecord(string typeName, int32 primaryKey) {
 
     page page(0, recordSize, slotSize);
 
-    int offset = (IS_FULL + TYPE_NAME + NUM_PAGES + NUM_RECORDS + LINK_TO_FILE + LINK_TO_FILE) + (index->page_id * PAGE);
+    int offset = (IS_FULL + TYPE_NAME + NUM_PAGES + NUM_RECORDS + LINK_TO_FILE + LINK_TO_FILE) + (index.page_id * PAGE);
 
     page.read(searchFile, offset);
 
@@ -148,12 +148,12 @@ void dml::deleteRecord(string typeName, int32 primaryKey) {
 
         record.read(searchFile, offset + (PAGE_ID + PAGE_NUM_RECORDS) + page.slotSize + page.numRecords * recordSize);
 
-        page.slots[record.recordID] = page.slots[index->record_id];
+        page.slots[record.recordID] = page.slots[index.record_id];
 
-        record.write(searchFile, offset + (PAGE_ID + PAGE_NUM_RECORDS) + page.slotSize + (page.slots[index->record_id] -1 ) * recordSize);
+        record.write(searchFile, offset + (PAGE_ID + PAGE_NUM_RECORDS) + page.slotSize + (page.slots[index.record_id] -1 ) * recordSize);
     }
 
-    page.slots[index->record_id] = 0;
+    page.slots[index.record_id] = 0;
 
     file.write(searchFile);
 
@@ -217,7 +217,7 @@ record* dml::searchRecord(string typeName, int32 primaryKey) {
 
     auto index = systemCatalog->searchKey(*type, primaryKey);
 
-    if(index == type->indexes.end()) {
+    if(errno == -1) {
         cout << "Record could not be found, type: " << truncateName(typeName) << ", key: " << primaryKey << endl;
 
         return nullptr;
@@ -225,7 +225,7 @@ record* dml::searchRecord(string typeName, int32 primaryKey) {
 
     systemCatalog->readIndex(*type);
 
-    fstream searchFile(ROOT + truncateName(typeName) + INFIX + to_string(index->file_id), INOUTBIN);
+    fstream searchFile(ROOT + truncateName(typeName) + INFIX + to_string(index.file_id), INOUTBIN);
 
     auto recordSize = (uint8) (RECORD_ID + type->numFields * FIELD);
 
@@ -233,13 +233,13 @@ record* dml::searchRecord(string typeName, int32 primaryKey) {
 
     page page(0, recordSize, slotSize);
 
-    int offset = (IS_FULL + TYPE_NAME + NUM_PAGES + NUM_RECORDS + LINK_TO_FILE + LINK_TO_FILE) + (index->page_id * PAGE);
+    int offset = (IS_FULL + TYPE_NAME + NUM_PAGES + NUM_RECORDS + LINK_TO_FILE + LINK_TO_FILE) + (index.page_id * PAGE);
 
     page.read(searchFile, offset);
 
     auto record = new class record(0, type->numFields);
 
-    record->read(searchFile, offset + (PAGE_ID + PAGE_NUM_RECORDS) + page.slotSize + page.recordSize * (page.slots[index->record_id] - 1));
+    record->read(searchFile, offset + (PAGE_ID + PAGE_NUM_RECORDS) + page.slotSize + page.recordSize * (page.slots[index.record_id] - 1));
 
     return record;
 }
@@ -251,7 +251,7 @@ void dml::updateRecord(string typeName, int32 primaryKey, int32 *fields) {
 
     auto index = systemCatalog->searchKey(*type, primaryKey);
 
-    if(index == type->indexes.end()) {
+    if(errno == -1) {
         cout << "Record could not be found, type: " << truncateName(typeName) << ", key: " << primaryKey << endl;
 
         return;
@@ -259,7 +259,7 @@ void dml::updateRecord(string typeName, int32 primaryKey, int32 *fields) {
 
     systemCatalog->readIndex(*type);
 
-    fstream searchFile(ROOT + truncateName(typeName) + INFIX + to_string(index->file_id), INOUTBIN);
+    fstream searchFile(ROOT + truncateName(typeName) + INFIX + to_string(index.file_id), INOUTBIN);
 
     auto recordSize = (uint8) (RECORD_ID + type->numFields * FIELD);
 
@@ -267,17 +267,17 @@ void dml::updateRecord(string typeName, int32 primaryKey, int32 *fields) {
 
     page page(0, recordSize, slotSize);
 
-    int offset = (IS_FULL + TYPE_NAME + NUM_PAGES + NUM_RECORDS + LINK_TO_FILE + LINK_TO_FILE) + (index->page_id * PAGE);
+    int offset = (IS_FULL + TYPE_NAME + NUM_PAGES + NUM_RECORDS + LINK_TO_FILE + LINK_TO_FILE) + (index.page_id * PAGE);
 
     page.read(searchFile, offset);
 
     record record(0, type->numFields);
 
-    record.read(searchFile, offset + (PAGE_ID + PAGE_NUM_RECORDS) + page.slotSize + page.recordSize * (page.slots[index->record_id] - 1));
+    record.read(searchFile, offset + (PAGE_ID + PAGE_NUM_RECORDS) + page.slotSize + page.recordSize * (page.slots[index.record_id] - 1));
 
     for (int i = 1; i < record.numFields; ++i) {
         record.fields[i] = fields[i - 1];
     }
 
-    record.write(searchFile, offset + (PAGE_ID + PAGE_NUM_RECORDS) + page.slotSize + page.recordSize * (page.slots[index->record_id] - 1));
+    record.write(searchFile, offset + (PAGE_ID + PAGE_NUM_RECORDS) + page.slotSize + page.recordSize * (page.slots[index.record_id] - 1));
 }

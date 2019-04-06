@@ -39,30 +39,13 @@ int calcTypeSize(int numFields) {
 }
 
 void createIndex(std::string typeName) {
-    std::fstream rootFile(ROOT + truncateName(typeName) + INFIX + "index" + INFIX + "1", OUTBIN);
-    std::fstream leftFile(ROOT + truncateName(typeName) + INFIX + "index" + INFIX + "2", OUTBIN);
-    std::fstream rightFile(ROOT + truncateName(typeName) + INFIX + "index" + INFIX + "3", OUTBIN);
+    std::fstream rootFile(generateIndexFileName(typeName, 1), OUTBIN);
 
     btree_node root(1);
-    btree_node left(2);
-    btree_node right(3);
-
-    root.pointers[0] = left.id;
-    root.pointers[1] = right.id;
-    root.indices.insert(index(0,0,0,0));
-    root.leaf = false;
-    root.n++;
-
-    left.rightSibling = right.id;
-    right.leftSibling = left.id;
 
     root.write(rootFile);
-    left.write(leftFile);
-    right.write(rightFile);
 
     rootFile.close();
-    leftFile.close();
-    rightFile.close();
 }
 
 void linkFiles(const string typeName, uint32 currFileLink, uint32 prevFileLink, uint32 nextFileLink) {

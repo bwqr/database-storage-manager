@@ -3,7 +3,7 @@
 
 #include <tiff.h>
 #include <fstream>
-#include <set>
+#include <vector>
 #include "index.h"
 #include "defs.h"
 
@@ -12,15 +12,17 @@ public:
     uint8 n = 0;
     uint32 id;
     bool leaf = true;
-    std::set<index> indices;
+    std::vector<index> indices;
     uint32 *pointers = new uint32[INDEX_PER_BTREE + 1];
     uint32 leftSibling = 0;
     uint32 rightSibling = 0;
 
     btree_node(uint32 id);
 
+    ~btree_node();
+
     void read(std::fstream &stream);
-    void write(std::fstream &stream);
+    void write(std::fstream &stream) const;
 };
 
 

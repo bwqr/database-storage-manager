@@ -11,19 +11,21 @@ void btree_node::read(std::fstream &stream) {
 
     index index;
 
+    indices = std::vector<class index>(n);
+
     for (int i = 0; i < n; ++i) {
         index.read(stream);
-        indices.insert(index);
+        indices[i] = index;
     }
 
-    stream.seekg(BTREE_ID + BTREE_LEAF + NUM_BTREE + INDEX_PER_BTREE*(FILE_ID + RECORD_ID + PAGE_ID + PRIMARY_KEY));
+    stream.seekg(BTREE_ID + BTREE_LEAF + NUM_BTREE + (INDEX_PER_BTREE)*(FILE_ID + RECORD_ID + PAGE_ID + PRIMARY_KEY));
 
     stream.read((char *) pointers, (INDEX_PER_BTREE + 1) * (BTREE_POINTER));
     stream.read((char *) &leftSibling, BTREE_POINTER);
     stream.read((char *) &rightSibling, BTREE_POINTER);
 }
 
-void btree_node::write(std::fstream &stream) {
+void btree_node::write(std::fstream &stream) const {
     stream.seekp(0);
 
     stream.write((char *) &id, BTREE_ID);
@@ -48,11 +50,13 @@ void btree_node::write(std::fstream &stream) {
 
 btree_node::btree_node(uint32 id) {
 
-    indices = std::set<index>();
-
     for (int i = 0;i < INDEX_PER_BTREE + 1; ++i) {
         pointers[i] = 0;
     }
 
     this->id = id;
+}
+
+btree_node::~btree_node() {
+    delete[] pointers;
 }
