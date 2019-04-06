@@ -22,11 +22,13 @@
 
 #define PAGE_ID 1
 
+#define MAX_FIELDS 64
+
 #define NUM_FIELDS 1
 #define TYPE_NAME 8
 #define CARDINALITY 8
-#define PRIMARY_KEY 1
 #define FIELD_NAME 8
 #define FIELD 4
+#define PRIMARY_KEY FIELD
 
 #endif //SRC_DEFS_H
