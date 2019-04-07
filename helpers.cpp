@@ -42,7 +42,7 @@ directory* createIndex(std::string typeName) {
     std::fstream hashFile1(generateBucketFileName(typeName, 1), OUTBIN);
     std::fstream hashFile2(generateBucketFileName(typeName, 2), OUTBIN);
 
-    directory* dir = new directory;
+    auto dir = new directory;
 
     dir->typeName = typeName;
     dir->bucket_ids = vector<uint32>(2);

@@ -95,35 +95,8 @@ index SystemCatalog::searchKey(const type &type, int32 primaryKey) {
     return i;
 }
 
-void SystemCatalog::readIndex(const type &type) {
-
-    if (type.is_index_read) {
-        return;
-    }
-
-    type.is_index_read = true;
-
-    fstream indexFile(ROOT + truncateName(type.typeName) + INFIX + "index", INOUTBIN);
-
-    type.indexes = set<index>();
-
-    for (int i = 0; i < type.cardinality; ++i) {
-        index index;
-        indexFile.read((char *) &index.file_id, FILE_ID);
-        indexFile.read((char *) &index.page_id, PAGE_ID);
-        indexFile.read((char *) &index.record_id, RECORD_ID);
-        indexFile.read((char *) &index.value, FIELD);
-
-        type.indexes.insert(index);
-    }
-
-    indexFile.close();
-}
-
 void SystemCatalog::insertIndex(const type &type, uint32 file_id, uint8 page_id, uint8 record_id, int32 value) {
-//    readIndex(type);
     type.dir->insert(index(file_id, page_id, record_id, value));
-//    type.indexes.insert(index(file_id, page_id, record_id, value));
 }
 
 void SystemCatalog::write() {
@@ -134,23 +107,7 @@ void SystemCatalog::write() {
 
     for (auto k: types) {
         k.write(catalogFile, (int) catalogFile.tellp());
-        if (k.is_index_read) {
-            fstream indexFile(ROOT + truncateName(k.typeName) + INFIX + "index", OUTBIN);
-            k.writeIndex(indexFile);
-            indexFile.close();
-        }
     }
-}
-
-set<index> SystemCatalog::listIndex(string &typeName) {
-
-    auto type = this->getType(typeName);
-
-    if (type == types.end()) { return set<index>(); }
-
-    readIndex(*type);
-
-    return type->indexes;
 }
 
 bool SystemCatalog::checkExist(const type &type, int32 primaryKey) {

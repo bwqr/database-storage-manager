@@ -56,15 +56,3 @@ void type::write(std::fstream &stream, int offset) {
     dir->write(dirFile);
     dirFile.close();
 }
-
-void type::writeIndex(std::fstream &stream) {
-    stream.seekp(0);
-
-    for (auto i : this->indexes) {
-        stream.write((char *) &i.file_id, FILE_ID );
-        stream.write((char *) &i.page_id, PAGE_ID);
-        stream.write((char *) &i.record_id, RECORD_ID);
-        stream.write((char *) &i.value, FIELD);
-
-    }
-}

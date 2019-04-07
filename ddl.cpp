@@ -12,15 +12,13 @@ void ddl::createType(std::string typeName, int numFields, std::string *fields) {
     auto i = systemCatalog->getType(typeName);
 
     if(i != systemCatalog->types.end()) {
-        cout << "type already exists, type: " << typeName << endl;
-
         return;
     }
 
     type type(typeName, (int8) numFields);
 
-    for (int i = 0; i < numFields; ++i) {
-        type.fieldsName[i] = fields[i];
+    for (int j = 0; j < numFields; ++j) {
+        type.fieldsName[j] = fields[j];
     }
 
     int pos = NUM_TYPES;
@@ -50,13 +48,11 @@ void ddl::deleteType(std::string typeName) {
     int pos = NUM_TYPES;
 
     for ( i = systemCatalog->types.begin(); i != systemCatalog->types.end(); ++i) {
-        if(i->typeName.compare(typeName) == 0) { break; }
+        if(i->typeName == typeName) { break; }
         pos += calcTypeSize(i->numFields);
     }
 
     if(i == systemCatalog->types.end()) {
-        cout << "type could not be found, typeName: " << typeName << endl;
-
         return;
     }
 
@@ -68,15 +64,15 @@ void ddl::deleteType(std::string typeName) {
 
     string path = string(ROOT + "SystemCatalog");
 
-    if(truncate((char *) path.c_str(), end - (currEnd - pos)) == -1) {
-        cout << "file cannot be shrank" << endl;
-
-        return;
-    }
+    truncate((char *) path.c_str(), end - (currEnd - pos));
 
     string truncatedName = truncateName(typeName);
 
-    remove((ROOT + truncatedName + INFIX + "index").c_str());
+    for (auto &bucket_id: i->dir->bucket_ids) {
+        remove(generateBucketFileName(typeName, bucket_id).c_str());
+    }
+
+    remove(generateDirectoryFileName(typeName).c_str());
 
     //delete the files
     int currFileLink = 1;
