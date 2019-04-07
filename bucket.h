@@ -8,19 +8,19 @@
 class bucket {
 public:
     uint32 id;
-    std::vector<index> indices;
+    uint8 size = 0;
     uint32 overflow_page_id = 0;
-    int depth;
+    int32 depth = 1;
+    std::vector<index> indices;
     bucket() = default;
-    bucket(std::fstream &stream);
 
-    void insert(int32 key);
-    void remove(int32 key);
-    index search(int32 key);
+    void insert(index index);
+    void remove(index index);
+    index search(index index);
     bool isFull();
     bool isEmpty();
     int getDepth();
-    void increateDepth();
+    void increaseDepth();
     void decreaseDepth();
     void clear();
 

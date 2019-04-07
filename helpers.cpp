@@ -1,6 +1,8 @@
 #include "helpers.h"
 #include <fstream>
 #include "defs.h"
+#include <sys/stat.h>
+#include "directory.h"
 
 std::string truncateName(std::string name) {
 
@@ -35,10 +37,31 @@ int calcTypeSize(int numFields) {
     return TYPE_NAME + NUM_FIELDS + CARDINALITY + PRIMARY_KEY + numFields * FIELD_NAME;
 }
 
-void createIndex(std::string typeName) {
-    std::ofstream indexFile(ROOT + truncateName(typeName) + INFIX + "index", OUTBIN);
+directory* createIndex(std::string typeName) {
+    std::fstream indexFile(generateDirectoryFileName(typeName), OUTBIN);
+    std::fstream hashFile1(generateBucketFileName(typeName, 1), OUTBIN);
+    std::fstream hashFile2(generateBucketFileName(typeName, 2), OUTBIN);
 
-    indexFile.close();
+    directory* dir = new directory;
+
+    dir->typeName = typeName;
+    dir->bucket_ids = vector<uint32>(2);
+    dir->bucket_ids[0] = 1;
+    dir->bucket_ids[1] = 2;
+
+    bucket bucket;
+
+    bucket.id = 1;
+
+    bucket.write(hashFile1);
+
+    bucket.id = 2;
+
+    bucket.write(hashFile2);
+
+    dir->write(indexFile);
+
+    return dir;
 }
 
 void linkFiles(const string typeName, uint32 currFileLink, uint32 prevFileLink, uint32 nextFileLink) {
@@ -79,4 +102,36 @@ file createAndLinkFiles(string typeName, uint32 currFile, uint32 prevFile, uint3
     linkFiles(typeName, currFile, prevFile, nextFile);
 
     return file;
+}
+
+
+string generateDirectoryFileName(string &typeName) {
+    return ROOT  + truncateName(typeName) + INFIX + "directory";
+}
+
+string generateBucketFileName(string &typeName, uint32 bucket_id) {
+    return ROOT + truncateName(typeName) + INFIX + "bucket" + INFIX + to_string(bucket_id);
+}
+
+uint32 generateBucketId(string &typeName) {
+
+    bool file_exist;
+
+    uint32 postfix;
+
+    do {
+        postfix = random();
+
+        file_exist = checkFileExist(generateBucketFileName(typeName, postfix));
+
+    } while(file_exist);
+
+    return postfix;
+}
+
+
+bool checkFileExist(const std::string &name) {
+    struct stat buffer;
+
+    return (stat(name.c_str(), &buffer) == 0);
 }

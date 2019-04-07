@@ -33,15 +33,15 @@ void ddl::createType(std::string typeName, int numFields, std::string *fields) {
 
     systemCatalog->numTypes++;
 
-    systemCatalog->types.insert(type);
-
     systemCatalog->writeNumTypes();
+
+    type.dir = createIndex(typeName);
 
     type.write(systemCatalog->catalogFile, pos);
 
-    createAndLinkFiles(typeName, 1, 0, 0);
+    systemCatalog->types.insert(type);
 
-    createIndex(typeName);
+    createAndLinkFiles(typeName, 1, 0, 0);
 }
 
 void ddl::deleteType(std::string typeName) {

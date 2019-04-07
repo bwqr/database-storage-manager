@@ -9,8 +9,8 @@
 
 int main(int argc, char **argv) {
 
-    if(argc < 3) {
-        std::cout << "ERROR, expected 2 arguments"<< std::endl;
+    if (argc < 3) {
+        std::cout << "ERROR, expected 2 arguments" << std::endl;
         return 1;
     }
 
@@ -20,128 +20,237 @@ int main(int argc, char **argv) {
 
     auto *dml = new class dml(sysCatalog);
 
-    ifstream inputFile(argv[1]);
+    if (argv[1][1] == 'f') {
 
-    ofstream outputFile(argv[2]);
+        ifstream inputFile(argv[2]);
 
-    string line, command, command_type, typeName;
+        ofstream outputFile(argv[3]);
 
-    while(getline(inputFile, line)) {
+        string line, command, command_type, typeName;
 
-        istringstream iss(line);
+        while (getline(inputFile, line)) {
 
-        iss >> command >> command_type >> typeName;
+            istringstream iss(line);
 
-        typeName.resize(TYPE_NAME, (char) 0x20);
+            iss >> command >> command_type >> typeName;
 
-        if(command == "create" && command_type == "type") {
+            typeName.resize(TYPE_NAME, (char) 0x20);
 
-            int numFields;
+            if (command == "create" && command_type == "type") {
 
-            iss >> numFields;
+                int numFields;
 
-            if(numFields <= MAX_FIELDS) {
+                iss >> numFields;
 
                 auto fields = new string[numFields];
 
-                bool valid = true;
-
                 for (int i = 0; i < numFields; ++i) {
                     iss >> fields[i];
-
                     fields[i].resize(FIELD_NAME, (char) 0x20);
+                }
 
-                    for (int j = 0; j < i; ++j) {
-                        if(fields[i] == fields[j]) {
-                            valid = false;
-                            break;
-                        }
+                ddl->createType(typeName, numFields, fields);
+
+                delete[] fields;
+
+            } else if (command == "delete" && command_type == "type") {
+
+                ddl->deleteType(typeName);
+
+            } else if (command == "list" && command_type == "type") {
+
+                ddl->listTypes(outputFile);
+
+            } else if (command == "create" && command_type == "record") {
+
+                auto type = sysCatalog->getType(typeName);
+
+                if (type != sysCatalog->types.end()) {
+                    int *fields = new int32[type->numFields];
+
+                    for (int i = 0; i < type->numFields; i++) {
+                        iss >> fields[i];
                     }
+
+                    dml->createRecord(typeName, fields);
+
+                    delete[] fields;
                 }
 
-                if(valid) {
-                    ddl->createType(typeName, numFields, fields);
+            } else if (command == "delete" && command_type == "record") {
+                int32 primaryKey;
+
+                iss >> primaryKey;
+
+                dml->deleteRecord(typeName, primaryKey);
+
+            } else if (command == "update" && command_type == "record") {
+                int32 primaryKey;
+
+                iss >> primaryKey;
+
+                auto type = sysCatalog->getType(typeName);
+
+                if (type != sysCatalog->types.end()) {
+                    auto *fields = new int32[type->numFields - 1];
+
+                    for (int i = 0; i < type->numFields - 1; ++i) {
+                        iss >> fields[i];
+                    }
+
+                    dml->updateRecord(typeName, primaryKey, fields);
+
+                    delete[] fields;
                 }
 
-                delete[] fields;
-            }
+            } else if (command == "search" && command_type == "record") {
 
-        } else if(command == "delete" && command_type == "type"){
+                int32 primaryKey;
 
-            ddl->deleteType(typeName);
+                iss >> primaryKey;
 
-        } else if(command == "list" && command_type == "type") {
+                auto record = dml->searchRecord(typeName, primaryKey);
 
-            ddl->listTypes(outputFile);
+                if (record != nullptr) {
 
-        } else if(command == "create" && command_type == "record") {
+                    for (int i = 0; i < record->numFields; ++i) {
+                        outputFile << record->fields[i] << " ";
+                    }
 
-            auto type = sysCatalog->getType(typeName);
+                    delete record;
 
-            if(type != sysCatalog->types.end()) {
-                int *fields = new int32[type->numFields];
+                    outputFile << endl;
 
-                for(int i = 0; i < type->numFields; i++) {
-                    iss >> fields[i];
                 }
 
-                dml->createRecord(typeName, fields);
+            } else if (command == "list" && command_type == "record") {
 
-                delete[] fields;
-            }
-
-        } else if(command == "delete" && command_type == "record") {
-            int32 primaryKey;
-
-            iss >> primaryKey;
-
-            dml->deleteRecord(typeName, primaryKey);
-
-        } else if(command == "update" && command_type == "record") {
-            int32 primaryKey;
-
-            iss >> primaryKey;
-
-            auto type = sysCatalog->getType(typeName);
-
-            if(type != sysCatalog->types.end()) {
-                auto *fields = new int32[type->numFields - 1];
-
-                for (int i = 0; i < type->numFields - 1; ++i) {
-                    iss >> fields[i];
-                }
-
-                dml->updateRecord(typeName, primaryKey, fields);
-
-                delete[] fields;
-            }
-
-        } else if(command == "search" && command_type == "record") {
-
-            int32 primaryKey;
-
-            iss >> primaryKey;
-
-            auto record = dml->searchRecord(typeName, primaryKey);
-
-            if(record != nullptr) {
-
-                for (int i = 0; i < record->numFields; ++i) {
-                    outputFile << record->fields[i] << " ";
-                }
-
-                delete record;
-
-                outputFile << endl;
+                dml->listRecords(typeName, outputFile);
 
             }
-
-        } else if(command == "list" && command_type == "record") {
-
-            dml->listRecords(typeName, outputFile);
-
         }
+
+    } else if (argv[1][1] == 'c') {
+        string *fields = new string[argc - 3];
+
+        for (int i = 3; i < argc; ++i) {
+            fields[i - 3] = string(argv[i]);
+            fields[i - 3].resize(FIELD_NAME, (char) 0x20);
+        }
+        string createType = string(argv[2]);
+
+        createType.resize(TYPE_NAME, (char) 0x20);
+
+        ddl->createType(createType, argc - 3, fields);
+
+    } else if (argv[1][1] == 'd') {
+        string deleteFile = string(argv[2]);
+
+        deleteFile.resize(TYPE_NAME, (char) 0x20);
+
+        ddl->deleteType(string(deleteFile));
+    } else if (argv[1][1] == 'l' && argv[1][2] == 't') {
+
+        string listType = string(argv[2]);
+
+        listType.resize(TYPE_NAME, (char) 0x20);
+
+        dml->listRecords(listType, cout);
+
+    } else if (argv[1][1] == 'l' && argv[1][2] == 'i') {
+        string listType = string(argv[2]);
+
+        listType.resize(TYPE_NAME, (char) 0x20);
+
+        auto type = sysCatalog->getType(listType);
+
+        type->dir->print();
+//        auto indexes = sysCatalog->listIndex(listType);
+//
+//        for (auto i = indexes.begin(); i != indexes.end(); ++i) {
+//            std::cout << i->file_id << " " << (int) i->page_id << " "
+//                << (int) i->record_id << " " << i->value << std::endl;
+//        }
+
+    } else if (argv[1][1] == 'l' && argv[1][2] == 'p') {
+        string listType = string(argv[2]);
+
+        listType.resize(TYPE_NAME, (char) 0x20);
+
+//        auto indexes = sysCatalog->listIndex(listType);
+//
+//        for (auto i = indexes.begin(); i != indexes.end(); ++i) {
+//            std::cout << i->file_id << " " << (int) i->page_id << " "
+//                << (int) i->record_id << " " << i->value << std::endl;
+//        }
+
+        auto type = sysCatalog->getType(listType);
+
+    } else if (argv[1][1] == 'l') {
+        sysCatalog->listTypes(cout);
+    } else if (argv[1][1] == 'r' && argv[1][2] == 'c') {
+        int *fields = new int[argc - 3];
+
+        for (int i = 3; i < argc; i++) {
+            fields[i - 3] = std::stoi(argv[i]);
+        }
+
+        string typeName = string(argv[2]);
+
+        typeName.resize(TYPE_NAME, (char) 0x20);
+
+        dml->createRecord(typeName, fields);
+    } else if (argv[1][1] == 's') {
+        string searchType = string(argv[2]);
+
+        searchType.resize(8, (char) 0x20);
+
+        int32 searchValue = stoi(string(argv[3]));
+
+        auto type = sysCatalog->getType(searchType);
+
+        index in = type->dir->search(index(0,0,0,searchValue));
+
+        if(errno != -1) {
+            cout << in.file_id << "\t" << (int) in.page_id << "\t" << (int) in.record_id << "\t" << in.value << endl;
+        }
+//        auto record = dml->searchRecord(searchType, searchValue);
+
+//        std::cout << (int) record->recordID << std::endl;
+//
+//        for (int i = 0; i < record->numFields; ++i) {
+//            std::cout << "\t" << record->fields[i] << "\t";
+//        }
+//
+//        std::cout << endl;
+//
+//        delete record;
+
+    } else if (argv[1][1] == 'r' && argv[1][2] == 'd') {
+        string deleteType = string(argv[2]);
+
+        deleteType.resize(8, (char) 0x20);
+
+        int32 searchValue = stoi(string(argv[3]));
+
+        dml->deleteRecord(deleteType, searchValue);
+
+    } else if (argv[1][1] == 'u') {
+        string updateType = string(argv[2]);
+
+        updateType.resize(8, (char) 0x20);
+
+        int32 updateKey = stoi(string(argv[3]));
+
+        int32 *fields = new int32[argc - 4];
+
+        for (int i = 4; i < argc; ++i) {
+            fields[i - 4] = stoi(string(argv[i]));
+        }
+
+        dml->updateRecord(updateType, updateKey, fields);
     }
+
 
     delete sysCatalog;
 

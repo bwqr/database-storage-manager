@@ -7,6 +7,7 @@
 #include <set>
 #include <vector>
 #include "index.h"
+#include "directory.h"
 
 class type {
 public:
@@ -16,6 +17,7 @@ public:
     uint8 primaryKey;
     std::vector<std::string> fieldsName;
     mutable std::set<index> indexes;
+    directory *dir = nullptr;
 
     mutable bool is_index_read = false;
 

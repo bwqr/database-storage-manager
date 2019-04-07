@@ -31,8 +31,9 @@
 #define FIELD 4
 #define PRIMARY_KEY 1
 
-#define INDEX_PER_BUCKET 256
+#define INDEX_PER_BUCKET 255
 #define DEPTHS 4
 #define BUCKET_SIZE 4
 #define BUCKET_ID 4
+#define BUCKET_SIZE_FIELD 1
 #endif //SRC_DEFS_H

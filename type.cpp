@@ -28,6 +28,16 @@ void type::read(std::fstream &stream, int offset) {
         this->fieldsName[j] = std::string(8, 0x20);
         stream.read((char *) this->fieldsName[j].c_str(), FIELD_NAME);
     }
+
+    fstream dirFile(generateDirectoryFileName(typeName), INOUTBIN);
+
+    if(dir == nullptr) {
+        dir = new directory;
+    }
+
+    dir->typeName = typeName;
+    dir->read(dirFile);
+    dirFile.close();
 }
 
 void type::write(std::fstream &stream, int offset) {
@@ -41,6 +51,10 @@ void type::write(std::fstream &stream, int offset) {
     for (int i = 0; i < this->numFields; ++i) {
         stream.write((char *) this->fieldsName[i].c_str(), FIELD_NAME);
     }
+
+    fstream dirFile(generateDirectoryFileName(typeName), INOUTBIN);
+    dir->write(dirFile);
+    dirFile.close();
 }
 
 void type::writeIndex(std::fstream &stream) {

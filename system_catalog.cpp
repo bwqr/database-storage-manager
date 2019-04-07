@@ -13,7 +13,7 @@ using namespace std;
 SystemCatalog::SystemCatalog() {
     catalogFile = fstream(ROOT + "SystemCatalog", INOUTBIN);
 
-    if(!catalogFile){
+    if (!catalogFile) {
         cout << "SystemCatalog file could not be found or read, creating a new one" << endl;
 
         this->createCatalogFile();
@@ -21,7 +21,7 @@ SystemCatalog::SystemCatalog() {
         catalogFile = fstream(ROOT + "SystemCatalog", INOUTBIN);
     }
 
-    catalogFile.read((char *)&numTypes, NUM_TYPES);
+    catalogFile.read((char *) &numTypes, NUM_TYPES);
 
     types = set<type>();
 
@@ -41,7 +41,7 @@ SystemCatalog::SystemCatalog() {
 
 void SystemCatalog::createCatalogFile() {
 
-    if(mkdir((ROOT).c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1 && errno != EEXIST) {
+    if (mkdir((ROOT).c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1 && errno != EEXIST) {
         cout << "data directory cannot be created, storageManager failed to continue, exiting ...";
 
         exit(-1);
@@ -51,7 +51,7 @@ void SystemCatalog::createCatalogFile() {
 
     int num_types = 0;
 
-    _catalogFile.write((char *)&num_types, NUM_TYPES);
+    _catalogFile.write((char *) &num_types, NUM_TYPES);
 
     _catalogFile.close();
 }
@@ -59,7 +59,7 @@ void SystemCatalog::createCatalogFile() {
 void SystemCatalog::writeNumTypes() {
     catalogFile.seekp(0);
 
-    catalogFile.write((char *)&numTypes, NUM_TYPES);
+    catalogFile.write((char *) &numTypes, NUM_TYPES);
 }
 
 SystemCatalog::~SystemCatalog() {
@@ -78,26 +78,26 @@ void SystemCatalog::listTypes(ostream &stream) {
 set<type>::iterator SystemCatalog::getType(string &typeName) {
     set<type>::iterator i;
 
-    for ( i = types.begin(); i != types.end(); ++i) {
-        if(i->typeName.compare(typeName) == 0) { break; }
+    for (i = types.begin(); i != types.end(); ++i) {
+        if (i->typeName.compare(typeName) == 0) { break; }
     }
 
     return i;
 }
 
-set<index>::iterator SystemCatalog::searchKey(const type &type, int32 primaryKey) {
-    readIndex(type);
+index SystemCatalog::searchKey(const type &type, int32 primaryKey) {
+//    readIndex(type);
 
-    index index(0,0,0,primaryKey);
+    index index(0, 0, 0, primaryKey);
 
-    auto i = type.indexes.find(index);
+    auto i = type.dir->search(index);
 
     return i;
 }
 
 void SystemCatalog::readIndex(const type &type) {
 
-    if(type.is_index_read) {
+    if (type.is_index_read) {
         return;
     }
 
@@ -109,7 +109,7 @@ void SystemCatalog::readIndex(const type &type) {
 
     for (int i = 0; i < type.cardinality; ++i) {
         index index;
-        indexFile.read((char *) &index.file_id, FILE_ID );
+        indexFile.read((char *) &index.file_id, FILE_ID);
         indexFile.read((char *) &index.page_id, PAGE_ID);
         indexFile.read((char *) &index.record_id, RECORD_ID);
         indexFile.read((char *) &index.value, FIELD);
@@ -121,9 +121,9 @@ void SystemCatalog::readIndex(const type &type) {
 }
 
 void SystemCatalog::insertIndex(const type &type, uint32 file_id, uint8 page_id, uint8 record_id, int32 value) {
-    readIndex(type);
-
-    type.indexes.insert(index(file_id, page_id, record_id, value));
+//    readIndex(type);
+    type.dir->insert(index(file_id, page_id, record_id, value));
+//    type.indexes.insert(index(file_id, page_id, record_id, value));
 }
 
 void SystemCatalog::write() {
@@ -134,7 +134,7 @@ void SystemCatalog::write() {
 
     for (auto k: types) {
         k.write(catalogFile, (int) catalogFile.tellp());
-        if(k.is_index_read) {
+        if (k.is_index_read) {
             fstream indexFile(ROOT + truncateName(k.typeName) + INFIX + "index", OUTBIN);
             k.writeIndex(indexFile);
             indexFile.close();
@@ -146,7 +146,7 @@ set<index> SystemCatalog::listIndex(string &typeName) {
 
     auto type = this->getType(typeName);
 
-    if(type == types.end()) { return set<index>(); }
+    if (type == types.end()) { return set<index>(); }
 
     readIndex(*type);
 
@@ -157,5 +157,5 @@ bool SystemCatalog::checkExist(const type &type, int32 primaryKey) {
 
     auto index = this->searchKey(type, primaryKey);
 
-    return index != type.indexes.end();
+    return errno == 0;
 }

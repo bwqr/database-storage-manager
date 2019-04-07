@@ -11,28 +11,32 @@ using namespace std;
 
 class directory {
 private:
-    string typeName;
-    uint32 depth, bucket_size;
+    uint32 depth = 1, bucket_size = 2;
 
-    vector<uint32> bucket_ids;
 
     int hash(int32 key);
     void grow();
     void shrink();
     int pairIndex(int bucket_no, int depth);
     void split(bucket &bucket, int bucket_no);
-    void merge(bucket &bucket);
+    void merge(bucket &bucket, int bucket_no);
 
 public:
+    string typeName;
+    vector<uint32> bucket_ids;
 
     directory(string typeName);
 
-    void insert(int32 key);
-    void remove(int32 key);
-    index search(int32 key);
+    directory() = default;
+
+    void insert(index index);
+    void remove(index index);
+    index search(index index);
 
     void read(fstream &stream);
     void write(fstream &stream) const;
+
+    void print();
 };
 
 
