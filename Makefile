@@ -69,8 +69,8 @@ rebuild_cache/fast: rebuild_cache
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/home/fmk/apps/Clion/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -123,6 +123,33 @@ storageManager/fast:
 	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/build
 .PHONY : storageManager/fast
 
+bucket.o: bucket.cpp.o
+
+.PHONY : bucket.o
+
+# target to build an object file
+bucket.cpp.o:
+	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/bucket.cpp.o
+.PHONY : bucket.cpp.o
+
+bucket.i: bucket.cpp.i
+
+.PHONY : bucket.i
+
+# target to preprocess a source file
+bucket.cpp.i:
+	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/bucket.cpp.i
+.PHONY : bucket.cpp.i
+
+bucket.s: bucket.cpp.s
+
+.PHONY : bucket.s
+
+# target to generate assembly for a file
+bucket.cpp.s:
+	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/bucket.cpp.s
+.PHONY : bucket.cpp.s
+
 ddl.o: ddl.cpp.o
 
 .PHONY : ddl.o
@@ -149,6 +176,33 @@ ddl.s: ddl.cpp.s
 ddl.cpp.s:
 	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/ddl.cpp.s
 .PHONY : ddl.cpp.s
+
+directory.o: directory.cpp.o
+
+.PHONY : directory.o
+
+# target to build an object file
+directory.cpp.o:
+	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/directory.cpp.o
+.PHONY : directory.cpp.o
+
+directory.i: directory.cpp.i
+
+.PHONY : directory.i
+
+# target to preprocess a source file
+directory.cpp.i:
+	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/directory.cpp.i
+.PHONY : directory.cpp.i
+
+directory.s: directory.cpp.s
+
+.PHONY : directory.s
+
+# target to generate assembly for a file
+directory.cpp.s:
+	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/directory.cpp.s
+.PHONY : directory.cpp.s
 
 dml.o: dml.cpp.o
 
@@ -402,9 +456,15 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... storageManager"
 	@echo "... edit_cache"
+	@echo "... bucket.o"
+	@echo "... bucket.i"
+	@echo "... bucket.s"
 	@echo "... ddl.o"
 	@echo "... ddl.i"
 	@echo "... ddl.s"
+	@echo "... directory.o"
+	@echo "... directory.i"
+	@echo "... directory.s"
 	@echo "... dml.o"
 	@echo "... dml.i"
 	@echo "... dml.s"
