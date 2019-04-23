@@ -6,7 +6,6 @@
 #include "ddl.h"
 #include "dml.h"
 #include "defs.h"
-#include "btree.h"
 
 int main(int argc, char **argv) {
 
@@ -131,7 +130,6 @@ int main(int argc, char **argv) {
             dml->listRecords(typeName, outputFile);
 
         }
-
     }
 
     delete sysCatalog;

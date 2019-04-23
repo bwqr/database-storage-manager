@@ -1,11 +1,8 @@
 #include "helpers.h"
 #include <fstream>
-#include <random>
-#include <sys/stat.h>
 #include "defs.h"
 #include <sys/stat.h>
 #include "directory.h"
-
 
 std::string truncateName(std::string name) {
 
@@ -37,7 +34,7 @@ void linkFiles(const string typeName, uint32 prevFileLink, uint32 nextFileLink) 
 }
 
 int calcTypeSize(int numFields) {
-    return TYPE_NAME + NUM_FIELDS + CARDINALITY + PRIMARY_KEY + numFields * FIELD_NAME + BTREE_ID;
+    return TYPE_NAME + NUM_FIELDS + CARDINALITY + PRIMARY_KEY + numFields * FIELD_NAME;
 }
 
 directory* createIndex(std::string typeName) {
@@ -65,7 +62,6 @@ directory* createIndex(std::string typeName) {
     dir->write(indexFile);
 
     return dir;
-
 }
 
 void linkFiles(const string typeName, uint32 currFileLink, uint32 prevFileLink, uint32 nextFileLink) {
@@ -128,15 +124,14 @@ uint32 generateBucketId(string &typeName) {
 
         file_exist = checkFileExist(generateBucketFileName(typeName, postfix));
 
-
     } while(file_exist);
 
     return postfix;
 }
+
 
 bool checkFileExist(const std::string &name) {
     struct stat buffer;
 
     return (stat(name.c_str(), &buffer) == 0);
 }
-
