@@ -4,11 +4,13 @@
 #include <string>
 #include <unistd.h>
 #include "file.h"
+#include "directory.h"
+
 using namespace std;
 
 void createAndLinkFiles();
 
-void createIndex(string typeName);
+class directory* createIndex(string typeName);
 
 string truncateName(string typeName);
 
@@ -20,9 +22,12 @@ file createAndLinkFiles(string typeName, uint32 currFile, uint32 prevFile, uint3
 
 int calcTypeSize(int numFields);
 
+string generateDirectoryFileName(string &typeName);
+
+string generateBucketFileName(string &typeName, uint32 bucket_id);
+
+uint32 generateBucketId(string &typeName);
+
 bool checkFileExist(const std::string &name);
 
-std::string generateIndexFileName(const std::string &typeName, uint32 postfix);
-
-uint32 generateIndexFilePostfix(const std::string &typeName);
 #endif //SRC_HELPERS_H

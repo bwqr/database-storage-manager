@@ -3,4 +3,4 @@ project(src)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(storageManager main.cpp ddl.cpp ddl.h dml.cpp dml.h system_catalog.cpp system_catalog.h type.cpp type.h file.cpp file.h index.cpp index.h page.cpp page.h record.cpp record.h defs.h helpers.cpp helpers.h btree.cpp btree.h btree_node.cpp btree_node.h)
+add_executable(storageManager main.cpp ddl.cpp ddl.h dml.cpp dml.h system_catalog.cpp system_catalog.h type.cpp type.h file.cpp file.h index.cpp index.h page.cpp page.h record.cpp record.h defs.h helpers.cpp helpers.h directory.cpp directory.h bucket.cpp bucket.h)

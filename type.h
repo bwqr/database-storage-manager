@@ -7,6 +7,7 @@
 #include <set>
 #include <vector>
 #include "index.h"
+#include "directory.h"
 
 class type {
 public:
@@ -16,9 +17,7 @@ public:
     uint8 primaryKey;
     mutable uint32 index_root_pointer;
     std::vector<std::string> fieldsName;
-    mutable std::set<index> indexes;
-
-    mutable bool is_index_read = false;
+    directory *dir = nullptr;
 
     type();
 
@@ -27,8 +26,6 @@ public:
     void read(std::fstream &stream, int offset);
 
     void write(std::fstream &stream, int offset);
-
-    void writeIndex(std::fstream &stream);
 
     bool operator<(const type &type) const {
         return this->typeName < type.typeName;

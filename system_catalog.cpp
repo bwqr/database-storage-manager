@@ -14,7 +14,7 @@ using namespace std;
 SystemCatalog::SystemCatalog() {
     catalogFile = fstream(ROOT + "SystemCatalog", INOUTBIN);
 
-    if(!catalogFile){
+    if (!catalogFile) {
         cout << "SystemCatalog file could not be found or read, creating a new one" << endl;
 
         this->createCatalogFile();
@@ -22,7 +22,7 @@ SystemCatalog::SystemCatalog() {
         catalogFile = fstream(ROOT + "SystemCatalog", INOUTBIN);
     }
 
-    catalogFile.read((char *)&numTypes, NUM_TYPES);
+    catalogFile.read((char *) &numTypes, NUM_TYPES);
 
     types = set<type>();
 
@@ -42,7 +42,7 @@ SystemCatalog::SystemCatalog() {
 
 void SystemCatalog::createCatalogFile() {
 
-    if(mkdir((ROOT).c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1 && errno != EEXIST) {
+    if (mkdir((ROOT).c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1 && errno != EEXIST) {
         cout << "data directory cannot be created, storageManager failed to continue, exiting ...";
 
         exit(-1);
@@ -52,7 +52,7 @@ void SystemCatalog::createCatalogFile() {
 
     int num_types = 0;
 
-    _catalogFile.write((char *)&num_types, NUM_TYPES);
+    _catalogFile.write((char *) &num_types, NUM_TYPES);
 
     _catalogFile.close();
 }
@@ -60,7 +60,7 @@ void SystemCatalog::createCatalogFile() {
 void SystemCatalog::writeNumTypes() {
     catalogFile.seekp(0);
 
-    catalogFile.write((char *)&numTypes, NUM_TYPES);
+    catalogFile.write((char *) &numTypes, NUM_TYPES);
 }
 
 SystemCatalog::~SystemCatalog() {
@@ -79,50 +79,25 @@ void SystemCatalog::listTypes(ostream &stream) {
 set<type>::iterator SystemCatalog::getType(string &typeName) {
     set<type>::iterator i;
 
-    for ( i = types.begin(); i != types.end(); ++i) {
-        if(i->typeName.compare(typeName) == 0) { break; }
+    for (i = types.begin(); i != types.end(); ++i) {
+        if (i->typeName.compare(typeName) == 0) { break; }
     }
 
     return i;
 }
 
 index SystemCatalog::searchKey(const type &type, int32 primaryKey) {
-    btree tree(type.typeName, type.index_root_pointer);
 
-    return tree.search(primaryKey);
-}
+    index index(0, 0, 0, primaryKey);
 
-void SystemCatalog::readIndex(const type &type) {
+    auto i = type.dir->search(index);
 
-    if(type.is_index_read) {
-        return;
-    }
-
-    type.is_index_read = true;
-
-    fstream indexFile(ROOT + truncateName(type.typeName) + INFIX + "index", INOUTBIN);
-
-    type.indexes = set<index>();
-
-    for (int i = 0; i < type.cardinality; ++i) {
-        index index;
-        index.read(indexFile);
-        type.indexes.insert(index);
-    }
-
-    indexFile.close();
+    return i;
 }
 
 void SystemCatalog::insertIndex(const type &type, uint32 file_id, uint8 page_id, uint8 record_id, int32 value) {
-//    readIndex(type);
-    btree tree(type.typeName, type.index_root_pointer);
+    type.dir->insert(index(file_id, page_id, record_id, value));
 
-    index index(file_id, page_id, record_id, value);
-
-    tree.insertIndex(index);
-
-    type.index_root_pointer = tree.root_pointer;
-//    type.indexes.insert(index(file_id, page_id, record_id, value));
 }
 
 void SystemCatalog::write() {
@@ -133,23 +108,7 @@ void SystemCatalog::write() {
 
     for (auto k: types) {
         k.write(catalogFile, (int) catalogFile.tellp());
-        if(k.is_index_read) {
-            fstream indexFile(ROOT + truncateName(k.typeName) + INFIX + "index", OUTBIN);
-            k.writeIndex(indexFile);
-            indexFile.close();
-        }
     }
-}
-
-set<index> SystemCatalog::listIndex(string &typeName) {
-
-    auto type = this->getType(typeName);
-
-    if(type == types.end()) { return set<index>(); }
-
-    readIndex(*type);
-
-    return type->indexes;
 }
 
 bool SystemCatalog::checkExist(const type &type, int32 primaryKey) {
