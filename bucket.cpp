@@ -58,7 +58,6 @@ void bucket::read(std::fstream &stream) {
 
     stream.read((char *) &id, BUCKET_ID);
     stream.read((char *) &size, BUCKET_SIZE_FIELD);
-    stream.read((char *) &overflow_page_id, BUCKET_ID);
     stream.read((char *) &depth, DEPTHS);
 
     indices = std::vector<index>(size);
@@ -73,7 +72,6 @@ void bucket::write(std::fstream &stream) const {
 
     stream.write((char *) &id, BUCKET_ID);
     stream.write((char *) &size, BUCKET_SIZE_FIELD);
-    stream.write((char *) &overflow_page_id, BUCKET_ID);
     stream.write((char *) &depth, DEPTHS);
 
     for (int i = 0; i < size; ++i) {

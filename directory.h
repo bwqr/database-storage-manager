@@ -1,4 +1,3 @@
-//https://github.com/nitish6174/extendible-hashing/
 #ifndef SRC_DIRECTORY_H
 #define SRC_DIRECTORY_H
 

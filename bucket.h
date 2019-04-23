@@ -9,7 +9,6 @@ class bucket {
 public:
     uint32 id;
     uint8 size = 0;
-    uint32 overflow_page_id = 0;
     int32 depth = 1;
     std::vector<index> indices;
     bucket() = default;

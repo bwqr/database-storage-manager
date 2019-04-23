@@ -13,11 +13,9 @@ void dml::createRecord(string typeName, int32 *fields) {
 
     if(type == systemCatalog->types.end()) { return; }
 
-//    if(systemCatalog->checkExist(*type, fields[0])) {
-//        cout << "Duplicate primary key: " << fields[0] << endl;
-//
-//        return;
-//    }
+    if(systemCatalog->checkExist(*type, fields[0])) {
+        return;
+    }
 
     uint32 currFileLink = 1;
 
@@ -96,12 +94,8 @@ void dml::deleteRecord(string typeName, int32 primaryKey) {
     auto index = systemCatalog->searchKey(*type, primaryKey);
 
     if(errno == -1) {
-        cout << "Record could not be found, type: " << truncateName(typeName) << ", key: " << primaryKey << endl;
-
         return;
     }
-
-//    systemCatalog->readIndex(*type);
 
     fstream searchFile(ROOT + truncateName(typeName) + INFIX + to_string(index.file_id), INOUTBIN);
 
@@ -215,19 +209,9 @@ record* dml::searchRecord(string typeName, int32 primaryKey) {
 
     auto index = systemCatalog->searchKey(*type, primaryKey);
 
-//    if(index == type->indexes.end()) {
-//        cout << "Record could not be found, type: " << truncateName(typeName) << ", key: " << primaryKey << endl;
-//
-//        return nullptr;
-//    }
-
     if(errno == -1 ) {
-        cout << "Record could not be found, type: " << truncateName(typeName) << ", key: " << primaryKey << endl;
-
         return nullptr ;
     }
-
-//    systemCatalog->readIndex(*type);
 
     fstream searchFile(ROOT + truncateName(typeName) + INFIX + to_string(index.file_id), INOUTBIN);
 
@@ -260,8 +244,6 @@ void dml::updateRecord(string typeName, int32 primaryKey, int32 *fields) {
 
         return;
     }
-
-    systemCatalog->readIndex(*type);
 
     fstream searchFile(ROOT + truncateName(typeName) + INFIX + to_string(index.file_id), INOUTBIN);
 

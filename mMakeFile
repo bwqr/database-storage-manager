@@ -1,2 +1,0 @@
-target:
-	g++ main.cpp system_catalog.cpp ddl.cpp dml.cpp page.cpp record.cpp index.cpp file.cpp defs.h type.cpp helpers.cpp directory.cpp directory.h bucket.h bucket.cpp -o storageManager

@@ -16,10 +16,7 @@ public:
     mutable uint64 cardinality;
     uint8 primaryKey;
     std::vector<std::string> fieldsName;
-    mutable std::set<index> indexes;
     directory *dir = nullptr;
-
-    mutable bool is_index_read = false;
 
     type();
 
@@ -28,8 +25,6 @@ public:
     void read(std::fstream &stream, int offset);
 
     void write(std::fstream &stream, int offset);
-
-    void writeIndex(std::fstream &stream);
 
     bool operator<(const type &type) const {
         return this->typeName < type.typeName;
