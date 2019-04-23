@@ -94,6 +94,9 @@ void dml::deleteRecord(string typeName, int32 primaryKey) {
     auto index = systemCatalog->searchKey(*type, primaryKey);
 
     if(errno == -1) {
+
+        cout << "Record could not be found, type: " << truncateName(typeName) << ", key: " << primaryKey << endl;
+
         return;
     }
 
@@ -209,8 +212,10 @@ record* dml::searchRecord(string typeName, int32 primaryKey) {
 
     auto index = systemCatalog->searchKey(*type, primaryKey);
 
-    if(errno == -1 ) {
-        return nullptr ;
+    if(errno == -1) {
+        cout << "Record could not be found, type: " << truncateName(typeName) << ", key: " << primaryKey << endl;
+
+        return nullptr;
     }
 
     fstream searchFile(ROOT + truncateName(typeName) + INFIX + to_string(index.file_id), INOUTBIN);

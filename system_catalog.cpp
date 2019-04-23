@@ -7,6 +7,7 @@
 #include "type.h"
 #include "index.h"
 #include "helpers.h"
+#include "btree.h"
 
 using namespace std;
 
@@ -86,7 +87,6 @@ set<type>::iterator SystemCatalog::getType(string &typeName) {
 }
 
 index SystemCatalog::searchKey(const type &type, int32 primaryKey) {
-//    readIndex(type);
 
     index index(0, 0, 0, primaryKey);
 

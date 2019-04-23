@@ -70,7 +70,9 @@ rebuild_cache/fast: rebuild_cache
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/home/fmk/apps/Clion/bin/cmake/linux/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+
+	/usr/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -149,6 +151,7 @@ bucket.s: bucket.cpp.s
 bucket.cpp.s:
 	$(MAKE) -f CMakeFiles/storageManager.dir/build.make CMakeFiles/storageManager.dir/bucket.cpp.s
 .PHONY : bucket.cpp.s
+
 
 ddl.o: ddl.cpp.o
 

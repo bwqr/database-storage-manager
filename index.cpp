@@ -20,4 +20,5 @@ void index::write(std::fstream &stream) const {
     stream.write((char *) &page_id, PAGE_ID);
     stream.write((char *) &record_id, RECORD_ID);
     stream.write((char *) &value, FIELD);
+
 }
