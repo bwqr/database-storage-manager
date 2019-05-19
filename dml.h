@@ -18,15 +18,15 @@ private:
 public:
     dml(SystemCatalog *systemCatalog);
 
-    void createRecord(string typeName, int32 *fields);
+    void createRecord(string typeName, int32_t *fields);
 
-    void deleteRecord(string typeName, int32 primaryKey);
+    void deleteRecord(string typeName, int32_t primaryKey);
 
-    record* searchRecord(string typeName, int32 primaryKey);
+    record* searchRecord(string typeName, int32_t primaryKey);
 
     void listRecords(string typeName, ostream &stream);
 
-    void updateRecord(string typeName, int32 primaryKey, int32 *fields);
+    void updateRecord(string typeName, int32_t primaryKey, int32_t *fields);
 };
 
 

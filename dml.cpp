@@ -8,7 +8,7 @@ dml::dml(SystemCatalog *systemCatalog) {
     this->systemCatalog = systemCatalog;
 }
 
-void dml::createRecord(string typeName, int32 *fields) {
+void dml::createRecord(string typeName, int32_t *fields) {
     auto type = systemCatalog->getType(typeName);
 
     if(type == systemCatalog->types.end()) { return; }
@@ -17,7 +17,7 @@ void dml::createRecord(string typeName, int32 *fields) {
         return;
     }
 
-    uint32 currFileLink = 1;
+    uint8_t currFileLink = 1;
 
     fstream currFile(ROOT + truncateName(typeName) + INFIX + to_string(currFileLink), INOUTBIN);
 
@@ -40,9 +40,9 @@ void dml::createRecord(string typeName, int32 *fields) {
 
     int offset = IS_FULL + TYPE_NAME + NUM_PAGES + NUM_RECORDS + LINK_TO_FILE + LINK_TO_FILE - (PAGE);
 
-    auto recordSize = (uint8) (RECORD_ID + type->numFields * FIELD);
+    auto recordSize = (uint8_t) (RECORD_ID + type->numFields * FIELD);
 
-    auto slotSize = (uint8) min((PAGE - PAGE_ID - NUM_RECORDS) / (recordSize+ 1), 255);
+    auto slotSize = (uint8_t) min((PAGE - PAGE_ID - NUM_RECORDS) / (recordSize+ 1), 255);
 
     page page(0, recordSize, slotSize);
 
@@ -86,7 +86,7 @@ void dml::createRecord(string typeName, int32 *fields) {
     type->cardinality++;
 }
 
-void dml::deleteRecord(string typeName, int32 primaryKey) {
+void dml::deleteRecord(string typeName, int32_t primaryKey) {
     auto type = systemCatalog->getType(typeName);
 
     if(type == systemCatalog->types.end()) { return; }
@@ -121,9 +121,9 @@ void dml::deleteRecord(string typeName, int32 primaryKey) {
 
     file.isFull = false;
 
-    auto recordSize = (uint8) (RECORD_ID + type->numFields * FIELD);
+    auto recordSize = (uint8_t) (RECORD_ID + type->numFields * FIELD);
 
-    auto slotSize = (uint8) min((PAGE - PAGE_ID - NUM_RECORDS) / (recordSize+ 1), 255);
+    auto slotSize = (uint8_t) min((PAGE - PAGE_ID - NUM_RECORDS) / (recordSize+ 1), 255);
 
     page page(0, recordSize, slotSize);
 
@@ -163,9 +163,9 @@ void dml::listRecords(string typeName, ostream &stream) {
 
     int currFileLink = 1;
 
-    auto recordSize = (uint8) (RECORD_ID + type->numFields * FIELD);
+    auto recordSize = (uint8_t) (RECORD_ID + type->numFields * FIELD);
 
-    auto slotSize = (uint8) min((PAGE - PAGE_ID - NUM_RECORDS) / (recordSize+ 1), 255);
+    auto slotSize = (uint8_t) min((PAGE - PAGE_ID - NUM_RECORDS) / (recordSize+ 1), 255);
 
     do {
         fstream currFile(ROOT + truncateName(typeName) + INFIX + to_string(currFileLink), INBIN);
@@ -202,7 +202,7 @@ void dml::listRecords(string typeName, ostream &stream) {
     }
 }
 
-record* dml::searchRecord(string typeName, int32 primaryKey) {
+record* dml::searchRecord(string typeName, int32_t primaryKey) {
     auto type = systemCatalog->getType(typeName);
 
     if(type == systemCatalog->types.end()) { return nullptr; }
@@ -215,9 +215,9 @@ record* dml::searchRecord(string typeName, int32 primaryKey) {
 
     fstream searchFile(ROOT + truncateName(typeName) + INFIX + to_string(index.file_id), INOUTBIN);
 
-    auto recordSize = (uint8) (RECORD_ID + type->numFields * FIELD);
+    auto recordSize = (uint8_t) (RECORD_ID + type->numFields * FIELD);
 
-    auto slotSize = (uint8) min((PAGE - PAGE_ID - NUM_RECORDS) / (recordSize+ 1), 255);
+    auto slotSize = (uint8_t) min((PAGE - PAGE_ID - NUM_RECORDS) / (recordSize+ 1), 255);
 
     page page(0, recordSize, slotSize);
 
@@ -232,7 +232,7 @@ record* dml::searchRecord(string typeName, int32 primaryKey) {
     return record;
 }
 
-void dml::updateRecord(string typeName, int32 primaryKey, int32 *fields) {
+void dml::updateRecord(string typeName, int32_t primaryKey, int32_t *fields) {
     auto type = systemCatalog->getType(typeName);
 
     if(type == systemCatalog->types.end()) { return; }
@@ -247,9 +247,9 @@ void dml::updateRecord(string typeName, int32 primaryKey, int32 *fields) {
 
     fstream searchFile(ROOT + truncateName(typeName) + INFIX + to_string(index.file_id), INOUTBIN);
 
-    auto recordSize = (uint8) (RECORD_ID + type->numFields * FIELD);
+    auto recordSize = (uint8_t) (RECORD_ID + type->numFields * FIELD);
 
-    auto slotSize = (uint8) min((PAGE - PAGE_ID - NUM_RECORDS) / (recordSize+ 1), 255);
+    auto slotSize = (uint8_t) min((PAGE - PAGE_ID - NUM_RECORDS) / (recordSize+ 1), 255);
 
     page page(0, recordSize, slotSize);
 

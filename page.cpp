@@ -5,12 +5,12 @@ page::~page() {
     delete[] this->slots;
 }
 
-page::page(uint8 pageID, uint32 recordSize, uint8 slotSize) {
+page::page(uint8_t pageID, uint32_t recordSize, uint8_t slotSize) {
     this->pageID = pageID;
     this->recordSize = recordSize;
     this->numRecords = 0;
     this->slotSize = slotSize;
-    this->slots = new uint8[slotSize];
+    this->slots = new uint8_t[slotSize];
 }
 
 void page::read(std::fstream &stream, int offset) {
@@ -29,7 +29,7 @@ void page::write(std::fstream &stream, int offset) {
     stream.write((char *) this->slots, this->slotSize);
 }
 
-std::vector<record> page::getRecords(std::fstream &stream, int offset, uint8 numFields) {
+std::vector<record> page::getRecords(std::fstream &stream, int offset, uint8_t numFields) {
 
     auto records = std::vector<record>(this->numRecords);
     int k = 0;
@@ -50,7 +50,7 @@ page::page(const page &p) {
     slotSize = p.slotSize;
     recordSize = p.recordSize;
 
-    slots = new uint8[slotSize];
+    slots = new uint8_t[slotSize];
 
     for (int i = 0; i < slotSize; ++i) {
         slots[i] = p.slots[i];
@@ -66,7 +66,7 @@ page &page::operator=(const page &p) {
         slotSize = p.slotSize;
         recordSize = p.recordSize;
 
-        slots = new uint8[slotSize];
+        slots = new uint8_t[slotSize];
 
         for (int i = 0; i < slotSize; ++i) {
             slots[i] = p.slots[i];

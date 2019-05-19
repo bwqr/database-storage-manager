@@ -7,17 +7,16 @@
 #define LINK_TO_FILE 4
 #define TYPE_NAME 8
 
-#include <tiff.h>
 #include <string>
 #include <fstream>
 class file {
 public:
     bool isFull;
     std::string typeName;
-    uint8 numPages;
-    uint32 numRecords;
-    uint32 nextFile;
-    uint32 prevFile;
+    uint8_t numPages;
+    uint32_t numRecords;
+    uint32_t nextFile;
+    uint32_t prevFile;
 
     file();
 

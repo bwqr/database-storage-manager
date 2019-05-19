@@ -7,9 +7,9 @@
 
 class bucket {
 public:
-    uint32 id;
-    uint8 size = 0;
-    int32 depth = 1;
+    uint32_t id;
+    uint8_t  size = 0;
+    int32_t depth = 1;
     std::vector<index> indices;
     bucket() = default;
 

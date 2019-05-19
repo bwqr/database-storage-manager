@@ -15,7 +15,7 @@ void ddl::createType(std::string typeName, int numFields, std::string *fields) {
         return;
     }
 
-    type type(typeName, (int8) numFields);
+    type type(typeName, (int8_t ) numFields);
 
     for (int j = 0; j < numFields; ++j) {
         type.fieldsName[j] = fields[j];

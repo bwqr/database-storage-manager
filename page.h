@@ -1,7 +1,6 @@
 #ifndef SRC_PAGE_H
 #define SRC_PAGE_H
 
-#include <tiff.h>
 #include <fstream>
 #include <vector>
 #include "record.h"
@@ -11,23 +10,23 @@
 
 class page {
 public:
-    uint8 pageID;
-    uint8 numRecords;
-    uint8 slotSize;
-    int32 recordSize;
-    uint8 *slots;
+    uint8_t pageID;
+    uint8_t numRecords;
+    uint8_t slotSize;
+    int32_t recordSize;
+    uint8_t *slots;
 
     page() = default;
 
     ~page();
 
-    page(uint8 pageID, uint32 recordSize, uint8 slotSize);
+    page(uint8_t pageID, uint32_t recordSize, uint8_t slotSize);
 
     page(const page& p);
 
     page& operator=(const page& p);
 
-    std::vector<record> getRecords(std::fstream &stream, int offset, uint8 numFields);
+    std::vector<record> getRecords(std::fstream &stream, int offset, uint8_t numFields);
 
     void read(std::fstream &stream, int offset);
 

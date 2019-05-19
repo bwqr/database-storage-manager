@@ -85,7 +85,7 @@ set<type>::iterator SystemCatalog::getType(string &typeName) {
     return i;
 }
 
-index SystemCatalog::searchKey(const type &type, int32 primaryKey) {
+index SystemCatalog::searchKey(const type &type, int32_t primaryKey) {
 //    readIndex(type);
 
     index index(0, 0, 0, primaryKey);
@@ -95,7 +95,7 @@ index SystemCatalog::searchKey(const type &type, int32 primaryKey) {
     return i;
 }
 
-void SystemCatalog::insertIndex(const type &type, uint32 file_id, uint8 page_id, uint8 record_id, int32 value) {
+void SystemCatalog::insertIndex(const type &type, uint32_t file_id, uint8_t page_id, uint8_t record_id, int32_t value) {
     type.dir->insert(index(file_id, page_id, record_id, value));
 }
 
@@ -110,7 +110,7 @@ void SystemCatalog::write() {
     }
 }
 
-bool SystemCatalog::checkExist(const type &type, int32 primaryKey) {
+bool SystemCatalog::checkExist(const type &type, int32_t primaryKey) {
 
     auto index = this->searchKey(type, primaryKey);
 

@@ -2,7 +2,6 @@
 #define SRC_DIRECTORY_H
 
 #include <vector>
-#include <tiff.h>
 #include "bucket.h"
 #include "helpers.h"
 
@@ -10,10 +9,10 @@ using namespace std;
 
 class directory {
 private:
-    uint32 depth = 1, bucket_size = 2;
+    uint32_t depth = 1, bucket_size = 2;
 
 
-    int hash(int32 key);
+    int hash(int32_t key);
     void grow();
     void shrink();
     int pairIndex(int bucket_no, int depth);
@@ -22,7 +21,7 @@ private:
 
 public:
     string typeName;
-    vector<uint32> bucket_ids;
+    vector<uint32_t> bucket_ids;
 
     directory(string typeName);
 

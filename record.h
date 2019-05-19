@@ -1,7 +1,6 @@
 #ifndef SRC_RECORD_H
 #define SRC_RECORD_H
 
-#include <tiff.h>
 #include <fstream>
 
 #define RECORD_ID 1
@@ -9,15 +8,15 @@
 
 class record {
 public:
-    uint8 recordID;
-    int32 *fields;
-    uint8 numFields = 0;
+    uint8_t recordID;
+    int32_t *fields;
+    uint8_t numFields = 0;
 
     record() = default;
 
     ~record();
 
-    record(uint8 recordID, uint8 numFields);
+    record(uint8_t recordID, uint8_t numFields);
 
     record(const record& r);
 

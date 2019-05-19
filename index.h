@@ -1,18 +1,17 @@
 #ifndef SRC_INDEX_H
 #define SRC_INDEX_H
 
-#include <tiff.h>
 #include <fstream>
 #include "defs.h"
 
 class index {
 public:
-    uint32 file_id;
-    uint8 page_id;
-    uint8 record_id;
-    int32 value;
+    uint32_t file_id;
+    uint8_t page_id;
+    uint8_t record_id;
+    int32_t value;
     index() = default;
-    index(uint32 file_id, uint8 page_id, uint8 record_id, int32 value);
+    index(uint32_t file_id, uint8_t page_id, uint8_t record_id, int32_t value);
 
     void read(std::fstream &stream);
     void write(std::fstream &stream) const;

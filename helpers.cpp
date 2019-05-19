@@ -13,7 +13,7 @@ std::string truncateName(std::string name) {
     return name;
 }
 
-void linkFiles(const string typeName, uint32 prevFileLink, uint32 nextFileLink) {
+void linkFiles(const string typeName, uint32_t prevFileLink, uint32_t nextFileLink) {
     if (prevFileLink != 0) {
         fstream prevFile(ROOT + truncateName(typeName) + INFIX + to_string(prevFileLink), INOUTBIN);
 
@@ -45,7 +45,7 @@ directory* createIndex(std::string typeName) {
     auto dir = new directory;
 
     dir->typeName = typeName;
-    dir->bucket_ids = vector<uint32>(2);
+    dir->bucket_ids = vector<uint32_t>(2);
     dir->bucket_ids[0] = 1;
     dir->bucket_ids[1] = 2;
 
@@ -64,7 +64,7 @@ directory* createIndex(std::string typeName) {
     return dir;
 }
 
-void linkFiles(const string typeName, uint32 currFileLink, uint32 prevFileLink, uint32 nextFileLink) {
+void linkFiles(const string typeName, uint32_t currFileLink, uint32_t prevFileLink, uint32_t nextFileLink) {
     if (prevFileLink != 0) {
         fstream prevFile(ROOT + truncateName(typeName) + INFIX + to_string(prevFileLink), INOUTBIN);
 
@@ -84,7 +84,7 @@ void linkFiles(const string typeName, uint32 currFileLink, uint32 prevFileLink, 
     }
 }
 
-file createAndLinkFiles(string typeName, uint32 currFile, uint32 prevFile, uint32 nextFile) {
+file createAndLinkFiles(string typeName, uint32_t currFile, uint32_t prevFile, uint32_t nextFile) {
     fstream typeFile(ROOT + truncateName(typeName) + INFIX + to_string(currFile), OUTBIN);
 
     file file(typeName, prevFile, nextFile);
@@ -109,15 +109,15 @@ string generateDirectoryFileName(string &typeName) {
     return ROOT  + truncateName(typeName) + INFIX + "directory";
 }
 
-string generateBucketFileName(string &typeName, uint32 bucket_id) {
+string generateBucketFileName(string &typeName, uint32_t bucket_id) {
     return ROOT + truncateName(typeName) + INFIX + "bucket" + INFIX + to_string(bucket_id);
 }
 
-uint32 generateBucketId(string &typeName) {
+uint32_t generateBucketId(string &typeName) {
 
     bool file_exist;
 
-    uint32 postfix;
+    uint32_t postfix;
 
     do {
         postfix = random();

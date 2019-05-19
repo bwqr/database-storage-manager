@@ -63,7 +63,7 @@ void directory::read(std::fstream &stream) {
 
     stream.read((char *) &depth, DEPTHS);
     stream.read((char *) &bucket_size, BUCKET_SIZE);
-    this->bucket_ids = vector<uint32>(bucket_size);
+    this->bucket_ids = vector<uint32_t>(bucket_size);
 
     for (int i = 0; i < bucket_size; ++i) {
         stream.read((char *) &bucket_ids[i], BUCKET_ID);
@@ -90,7 +90,7 @@ directory::directory(std::string typeName) {
     this->read(directoryFile);
 }
 
-int directory::hash(int32 key) {
+int directory::hash(int32_t key) {
     return key&((1<<depth)-1);
 }
 
@@ -212,7 +212,7 @@ void directory::shrink() {
 
 void directory::print() {
 
-    vector<uint32> visited;
+    vector<int32_t> visited;
 
     for (int i = 0; i < bucket_size; ++i) {
         bool cont = false;

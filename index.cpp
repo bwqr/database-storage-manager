@@ -1,6 +1,6 @@
 #include "index.h"
 
-index::index(uint32 file_id, uint8 page_id, uint8 record_id, int32 value) {
+index::index(uint32_t file_id, uint8_t page_id, uint8_t record_id, int32_t value) {
     this->file_id = file_id;
     this->page_id = page_id;
     this->record_id = record_id;

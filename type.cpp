@@ -5,7 +5,7 @@ type::type() {
     typeName = std::string(8, ' ');
 }
 
-type::type(std::string &typeName, uint8 numFields): type() {
+type::type(std::string &typeName, uint8_t numFields): type() {
     this->typeName = typeName;
     this->numFields = numFields;
     this->cardinality = 0;

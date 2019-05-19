@@ -1,9 +1,9 @@
 #include "record.h"
 #include <iostream>
 
-record::record(uint8 recordID, uint8 numFields) {
+record::record(uint8_t recordID, uint8_t numFields) {
     this->recordID = recordID;
-    this->fields = new int32[numFields];
+    this->fields = new int32_t[numFields];
     this->numFields = numFields;
 }
 
@@ -32,7 +32,7 @@ record::record(const record &r) {
     recordID = r.recordID;
     numFields = r.numFields;
 
-    fields = new int32[numFields];
+    fields = new int32_t[numFields];
 
     for (int i = 0; i < numFields; ++i) {
         fields[i] = r.fields[i];
@@ -46,7 +46,7 @@ record &record::operator=(const record &r) {
         recordID = r.recordID;
         numFields = r.numFields;
 
-        fields = new int32[numFields];
+        fields = new int32_t[numFields];
 
         for (int i = 0; i < numFields; ++i) {
             fields[i] = r.fields[i];

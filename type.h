@@ -1,7 +1,6 @@
 #ifndef SRC_TYPE_H
 #define SRC_TYPE_H
 
-#include <tiff.h>
 #include <string>
 #include <fstream>
 #include <set>
@@ -12,15 +11,15 @@
 class type {
 public:
     std::string typeName;
-    uint8 numFields = 0;
-    mutable uint64 cardinality;
-    uint8 primaryKey;
+    uint8_t  numFields = 0;
+    mutable uint64_t cardinality;
+    uint8_t  primaryKey;
     std::vector<std::string> fieldsName;
     directory *dir = nullptr;
 
     type();
 
-    type(std::string &typeName, uint8 numFields);
+    type(std::string &typeName, uint8_t  numFields);
 
     void read(std::fstream &stream, int offset);
 

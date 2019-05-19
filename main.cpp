@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
             auto type = sysCatalog->getType(typeName);
 
             if (type != sysCatalog->types.end()) {
-                int *fields = new int32[type->numFields];
+                int *fields = new int32_t[type->numFields];
 
                 for (int i = 0; i < type->numFields; i++) {
                     iss >> fields[i];
@@ -80,21 +80,21 @@ int main(int argc, char **argv) {
             }
 
         } else if (command == "delete" && command_type == "record") {
-            int32 primaryKey;
+            int8_t primaryKey;
 
             iss >> primaryKey;
 
             dml->deleteRecord(typeName, primaryKey);
 
         } else if (command == "update" && command_type == "record") {
-            int32 primaryKey;
+            int8_t primaryKey;
 
             iss >> primaryKey;
 
             auto type = sysCatalog->getType(typeName);
 
             if (type != sysCatalog->types.end()) {
-                auto *fields = new int32[type->numFields - 1];
+                auto *fields = new int32_t[type->numFields - 1];
 
                 for (int i = 0; i < type->numFields - 1; ++i) {
                     iss >> fields[i];
@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
 
         } else if (command == "search" && command_type == "record") {
 
-            int32 primaryKey;
+            int8_t primaryKey;
 
             iss >> primaryKey;
 

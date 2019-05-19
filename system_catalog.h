@@ -1,7 +1,6 @@
 #ifndef SRC_SYSTEMCATALOG_H
 #define SRC_SYSTEMCATALOG_H
 
-#include <tiff.h>
 #include "type.h"
 #include <fstream>
 #include <vector>
@@ -15,7 +14,7 @@ using namespace std;
 class SystemCatalog {
 private:
 public:
-    int32 numTypes;
+    int32_t numTypes;
 
     set<type> types;
 
@@ -33,13 +32,13 @@ public:
 
     set<type>::iterator getType(string &typeName);
 
-    index searchKey(const type &type, int32 primaryKey);
+    index searchKey(const type &type, int32_t primaryKey);
 
-    void insertIndex(const type &type, uint32 file_id, uint8 page_id, uint8 record_id, int32 value);
+    void insertIndex(const type &type, uint32_t file_id, uint8_t page_id, uint8_t record_id, int32_t value);
 
     void readIndex(const type &type);
 
-    bool checkExist(const type &type, int32 primaryKey);
+    bool checkExist(const type &type, int32_t primaryKey);
 
     set<index> listIndex(string &typeName);
 
